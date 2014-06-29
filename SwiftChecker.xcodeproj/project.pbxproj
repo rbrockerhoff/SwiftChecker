@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		74718385195CC6A0009CF404 /* ObjCStuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 74718384195CC6A0009CF404 /* ObjCStuff.m */; };
+		747A454E194A3888005359A3 /* SwiftChecker.xib in Resources */ = {isa = PBXBuildFile; fileRef = 747A454D194A3888005359A3 /* SwiftChecker.xib */; };
+		74BA4469196091E600F94DE7 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 74BA4467196090C800F94DE7 /* Credits.rtf */; };
 		74C2748719411122006C9A3B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748619411122006C9A3B /* main.swift */; };
-		74C2748919411122006C9A3B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748819411122006C9A3B /* ViewController.swift */; };
 		74C2748B19411122006C9A3B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748A19411122006C9A3B /* AppDelegate.swift */; };
-		74C2748D19411122006C9A3B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74C2748C19411122006C9A3B /* Images.xcassets */; };
-		74C2749019411122006C9A3B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74C2748E19411122006C9A3B /* Main.storyboard */; };
 		74C2749C19411122006C9A3B /* SwiftCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2749B19411122006C9A3B /* SwiftCheckerTests.swift */; };
+		74C274A919492CD9006C9A3B /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C274A819492CD9006C9A3B /* Future.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,19 +27,22 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		745B96C019492EB300962E61 /* SwiftChecker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftChecker-Bridging-Header.h"; sourceTree = "<group>"; };
+		74718383195CC6A0009CF404 /* ObjCStuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCStuff.h; sourceTree = "<group>"; };
+		74718384195CC6A0009CF404 /* ObjCStuff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjCStuff.m; sourceTree = "<group>"; };
+		747A454D194A3888005359A3 /* SwiftChecker.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SwiftChecker.xib; sourceTree = "<group>"; };
+		74BA4467196090C800F94DE7 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		74C2748119411122006C9A3B /* SwiftChecker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftChecker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		74C2748519411122006C9A3B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74C2748619411122006C9A3B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		74C2748819411122006C9A3B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		74C2748A19411122006C9A3B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		74C2748C19411122006C9A3B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		74C2748F19411122006C9A3B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		74C2749519411122006C9A3B /* SwiftCheckerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftCheckerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		74C2749A19411122006C9A3B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74C2749B19411122006C9A3B /* SwiftCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftCheckerTests.swift; sourceTree = "<group>"; };
 		74C274A5194115C1006C9A3B /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = SOURCE_ROOT; };
 		74C274A6194115C1006C9A3B /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		74C274A7194115C1006C9A3B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		74C274A819492CD9006C9A3B /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Future.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,13 +85,15 @@
 			isa = PBXGroup;
 			children = (
 				74C274A5194115C1006C9A3B /* .gitignore */,
+				74BA4467196090C800F94DE7 /* Credits.rtf */,
 				74C274A6194115C1006C9A3B /* LICENSE */,
 				74C274A7194115C1006C9A3B /* README.md */,
-				74C2748819411122006C9A3B /* ViewController.swift */,
 				74C2748A19411122006C9A3B /* AppDelegate.swift */,
-				74C2748C19411122006C9A3B /* Images.xcassets */,
-				74C2748E19411122006C9A3B /* Main.storyboard */,
+				74C274A819492CD9006C9A3B /* Future.swift */,
+				74718383195CC6A0009CF404 /* ObjCStuff.h */,
+				74718384195CC6A0009CF404 /* ObjCStuff.m */,
 				74C2748419411122006C9A3B /* Supporting Files */,
+				745B96C019492EB300962E61 /* SwiftChecker-Bridging-Header.h */,
 			);
 			path = SwiftChecker;
 			sourceTree = "<group>";
@@ -96,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				74C2748519411122006C9A3B /* Info.plist */,
+				747A454D194A3888005359A3 /* SwiftChecker.xib */,
 				74C2748619411122006C9A3B /* main.swift */,
 			);
 			name = "Supporting Files";
@@ -198,8 +205,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74C2748D19411122006C9A3B /* Images.xcassets in Resources */,
-				74C2749019411122006C9A3B /* Main.storyboard in Resources */,
+				747A454E194A3888005359A3 /* SwiftChecker.xib in Resources */,
+				74BA4469196091E600F94DE7 /* Credits.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,8 +224,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				74718385195CC6A0009CF404 /* ObjCStuff.m in Sources */,
 				74C2748B19411122006C9A3B /* AppDelegate.swift in Sources */,
-				74C2748919411122006C9A3B /* ViewController.swift in Sources */,
+				74C274A919492CD9006C9A3B /* Future.swift in Sources */,
 				74C2748719411122006C9A3B /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -240,17 +248,6 @@
 			targetProxy = 74C2749619411122006C9A3B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		74C2748E19411122006C9A3B /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				74C2748F19411122006C9A3B /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		74C2749D19411122006C9A3B /* Debug */ = {
@@ -334,10 +331,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = SwiftChecker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SwiftChecker/SwiftChecker-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -345,10 +347,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = SwiftChecker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SwiftChecker/SwiftChecker-Bridging-Header.h";
 			};
 			name = Release;
 		};
