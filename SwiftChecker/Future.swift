@@ -18,27 +18,29 @@ import Foundation
 	NSProxy either - all ObjC objects passed to Swift have to subclass NSObject.
  */
 
-/*!
-	Accepts a closure to be performed on the next iteration of the main run loop;
+/**
+	@brief Accepts a closure to be performed on the next iteration of the main run loop;
 	basically an equivalent of performSelectorOnMainThread: but with no object and
 	waitUntilDone:NO.
+
+	@discussion We might do dispatch_async(dispatch_get_main_queue(), thing) here, but
+	that may cut in front of other events waiting to be handled in the run loop.
+	(Thanks to Kyle Sluder for the explanation.)
  */
 func PerformOnMain(thing: () -> Void) {
-//	We could just do dispatch_async(dispatch_get_main_queue(), thing) here, but
-//	that would bypass other events waiting to be handled in the run loop.
 	let loop = NSRunLoop.mainRunLoop().getCFRunLoop()
-	CFRunLoopPerformBlock(loop!, kCFRunLoopCommonModes, thing)
+	CFRunLoopPerformBlock(loop, kCFRunLoopCommonModes, thing)
 }
 
-/*!
-	Accepts a closure to be performed asynchronously.
- */
+///	Accepts a closure to be performed asynchronously.
 func PerformAsync(thing: () -> Void) {
 	dispatch_async(dispatch_get_global_queue(0, 0), thing)
 }
 
-/*!
-	This generic class implements a simple Future. Use it like this:
+/**
+	@brief This generic class implements a simple Future.
+
+	@discussion Use it like this:
 		var aFuture: Future<someType> = Future { ...closure returning someType... }
 	or
 		var aFuture: Future<someType> = Future ( ...value of someType... )
@@ -55,14 +57,14 @@ func PerformAsync(thing: () -> Void) {
  */
 class Future <T> {
 
-//	This property is for internal use only and uses a combination mutex/lock to guarantee
-//	asynchronous access to the _result property.
+///	This property is for internal use only and uses a combination mutex/lock to guarantee
+///	asynchronous access to the _result property.
 	let _lock = NSCondition()
 
-/*	This property is for internal use only and contains either an empty array or an array
+/**	@brief This property is for internal use only and contains either an empty array or an array
 	with a single member (the result) when the Future has resolved.
 	
-	My first impulse was to implement this as
+	@discussion My first impulse was to implement this as
 		var _result: T
 	but this demands a value to be assigned in init(), before the PerformAsync() call, and I
 	could find no easy way to generate an empty generic T.
@@ -78,9 +80,9 @@ class Future <T> {
  */
 	var _result: T[] = []
 
-/*	This function is for internal use only, avoiding code duplication.
+/**	@brief This function is for internal use only, avoiding code duplication.
 	
-	The argument closure is performed asynchronously and its value is captured.
+	@discussion The argument closure is performed asynchronously and its value is captured.
 	Access to _result is guarded by the mutex and other threads waiting are
 	unblocked by the broadcast() call.
  */
@@ -94,23 +96,17 @@ class Future <T> {
 		}
 	}
 
-/*!
-	This function creates and starts a Future using the argument closure.
- */
+///	This function creates and starts a Future using the argument closure.
 	init(future: () -> T) {
 		_run(future)
 	}
 	
-/*!
-	This function creates and starts a Future using the argument expression.
- */
+///	This function creates and starts a Future using the argument expression.
 	init(_ future: @auto_closure ()-> T) {
 		_run(future)
 	}
 	
-/*!
-	This function returns the actual Future value, and blocks while it is being resolved.
- */
+///	This function returns the actual Future value, and blocks while it is being resolved.
 	func value() -> T {
 		_lock.lock()
 		while _result.count < 1 {
@@ -121,9 +117,7 @@ class Future <T> {
 		return r
 	}
 	
-/*!
-	This function tests if the Future has been resolved.
- */
+///	This function tests if the Future has been resolved.
 	func resolved() -> Bool {
 		_lock.lock()
 		let r = _result.count > 0

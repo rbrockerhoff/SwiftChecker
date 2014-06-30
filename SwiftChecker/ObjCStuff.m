@@ -8,12 +8,13 @@
 
 #import "ObjCStuff.h"
 
-/*
+/**
 	This code is from pre-ARC days and abuses toll-free bridging (regarding retain/release
 	and autorelease). After a couple of days of crashing the compiler while trying to call
 	these APIs directly from Swift, I gave up for now.
  */
 
+/// Returns a code signature dictionary for the URL, or nil for error.
 NSDictionary* GetCodeSignatureForURL(CFURLRef url) {
 	NSMutableDictionary* dict = nil;
 	SecStaticCodeRef code = NULL;
@@ -27,9 +28,10 @@ NSDictionary* GetCodeSignatureForURL(CFURLRef url) {
 	return [dict autorelease];
 }
 
+/// Returns a summary string for a SecCertificateRef (cast to id), or nil for error.
 NSString* GetCertSummary(id cert) {
 	NSString* summary = (NSString*)SecCertificateCopySubjectSummary((SecCertificateRef)cert);
-	return summary ? [summary autorelease] : @"";
+	return [summary autorelease];
 }
 
 
