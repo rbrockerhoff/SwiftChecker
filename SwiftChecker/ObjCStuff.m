@@ -16,7 +16,7 @@
 
 /// Returns a code signature dictionary for the URL, or nil for error.
 NSDictionary* GetCodeSignatureForURL(CFURLRef url) {
-	NSMutableDictionary* dict = nil;
+	NSDictionary* dict = nil;
 	SecStaticCodeRef code = NULL;
 	if (url) {
 		OSStatus err = SecStaticCodeCreateWithPath(url, kSecCSDefaultFlags, &code);

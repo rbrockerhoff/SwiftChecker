@@ -23,18 +23,17 @@ import Foundation
 	basically an equivalent of performSelectorOnMainThread: but with no object and
 	waitUntilDone:NO.
 
-	@discussion We might do dispatch_async(dispatch_get_main_queue(), thing) here, but
+	@discussion We might do dispatch_async(dispatch_get_main_queue(), work) here, but
 	that may cut in front of other events waiting to be handled in the run loop.
 	(Thanks to Kyle Sluder for the explanation.)
  */
-func PerformOnMain(thing: () -> Void) {
-	let loop = NSRunLoop.mainRunLoop().getCFRunLoop()
-	CFRunLoopPerformBlock(loop, kCFRunLoopCommonModes, thing)
+func PerformOnMain(work: () -> Void) {
+	CFRunLoopPerformBlock(NSRunLoop.mainRunLoop().getCFRunLoop(), kCFRunLoopCommonModes, work)
 }
 
 ///	Accepts a closure to be performed asynchronously.
-func PerformAsync(thing: () -> Void) {
-	dispatch_async(dispatch_get_global_queue(0, 0), thing)
+func PerformAsync(work: () -> Void) {
+	dispatch_async(dispatch_get_global_queue(0, 0), work)
 }
 
 /**
@@ -48,9 +47,9 @@ func PerformAsync(thing: () -> Void) {
 	to be executed asynchronously.
 
 	You can add aFuture to collections or pass it around. When you need the result,
-	use aFuture.value(); this will block if the Future hasn't resolved (happened) yet.
+	use aFuture.value; this will block if the Future hasn't resolved (happened) yet.
 
-	You can also test if the Future has resolved with aFuture.resolved(); this will not block.
+	You can also test if the Future has resolved with aFuture.resolved; this will not block.
 
 	Notice that someType can be an optional, and the closure/value may return nil to
 	signal an error condition or timeout.
@@ -86,30 +85,30 @@ class Future <T> {
 	Access to _result is guarded by the mutex and other threads waiting are
 	unblocked by the broadcast() call.
  */
-	func _run(future: () -> T) {
+	func _run(work: () -> T) {
 		PerformAsync {
-			let value = future()
+			let value = work()
 			self._lock.lock()
-			self._result = [ value ]	// note: value is put into an array!
+			self._result = [ value ]	// note that value is wrapped inside an array!
 			self._lock.broadcast()
 			self._lock.unlock()
 		}
 	}
 
 ///	This function creates and starts a Future using the argument closure.
-	init(future: () -> T) {
-		_run(future)
+	init(work: () -> T) {
+		_run(work)
 	}
 	
 ///	This function creates and starts a Future using the argument expression.
-	init(_ future: @auto_closure ()-> T) {
-		_run(future)
+	init(_ work: @auto_closure ()-> T) {
+		_run(work)
 	}
 	
-///	This function returns the actual Future value, and blocks while it is being resolved.
-	func value() -> T {
+///	This computed property returns the actual Future value, and blocks while it is being resolved.
+	var value: T {
 		_lock.lock()
-		while _result.count < 1 {
+		while _result.isEmpty {
 			_lock.wait()
 		}
 		let r = _result[0]
@@ -117,12 +116,12 @@ class Future <T> {
 		return r
 	}
 	
-///	This function tests if the Future has been resolved.
-	func resolved() -> Bool {
+///	This computed property tests if the Future has been resolved.
+	var resolved: Bool {
 		_lock.lock()
-		let r = _result.count > 0
+		let empty = _result.isEmpty
 		_lock.unlock()
-		return r
+		return !empty
 	}
 	
 }

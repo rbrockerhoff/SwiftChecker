@@ -9,9 +9,11 @@ For each process, it displays the icon, name and containing folder, as well as s
 
 The table is not updated automatically, but there's a refresh button to update it. A suggested exercise would be to listen to notifications for application start/stop and update the list dynamically.
 
-The project should build and run with no errors or warnings on OS X 10.10b2 and Xcode 6b2.
+Updating the table might potentially take some time if the system is very busy, since code signatures and icons will probably have to be loaded from disk. To speed this up, a simple "Future" class is implemented and used to (hopefully) perform these accesses asynchronously.
 
-There are copious comments that, hopefully, explain some of the design decisions and workarounds.
+The project should build and run with no errors, warnings or crashes on OS X 10.10b2 and Xcode 6b2.
+
+There are copious comments that, hopefully, explain some of the design decisions and workarounds where necessary.
 
 The Xcode project itself is largely unchanged from the default setup and options. Exceptions:
 - The test target and source file are there, but I didn't do anything with them.
