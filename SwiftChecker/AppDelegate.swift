@@ -28,7 +28,7 @@ import Cocoa
 }
 
 //	Some preset style attributes for that last function. Note that these are Dictionaries of different
-//	types, bu we don't care as the += will cast them to NSDictionary.
+//	types, but we don't care as the += will cast them to NSDictionary.
 let styleRED = [NSForegroundColorAttributeName:NSColor.redColor()]
 let styleBLUE = [NSForegroundColorAttributeName:NSColor.blueColor()]
 let styleBOLD12 = [NSFontAttributeName:NSFont.boldSystemFontOfSize(12)]
@@ -42,8 +42,6 @@ let styleNORM12 = [NSFontAttributeName:NSFont.systemFontOfSize(12)]
 	will either make the copy never resolve, or will hurt my head if both resolve. :-)
 
 	Rather than make a separate .swift file for this class, I found it easier to include it here.
-	Some code was copied back & forth from the AppDelegate class during debugging, and it's a
-	very short class anyway...
  */
 
 /*	Global functions for comparing ProcessInfos; must define < and ==
