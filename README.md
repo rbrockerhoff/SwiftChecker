@@ -22,4 +22,5 @@ The Xcode project itself is largely unchanged from the default setup and options
 - Some build options have been set, most importantly "treat warnings as errors".
 
 ---
+Check out more Swift stuff [on my blog](http://brockerhoff.net/blog/tag/swift).
 Please email comments to <rainer@brockerhoff.net>. This is intended as sample code, not as a collaborative open source project. Read the license for details.

@@ -44,17 +44,19 @@ func PerformAsync(work: () -> Void) {
 	or
 		var aFuture: Future<someType> = Future ( ...value of someType... )
 	where the closure or value are supposed to take enough time, so worthwhile
-	to be executed asynchronously.
+	to be executed asynchronously. Type inference works, so the left-hand side
+	on the examples above could just be written as
+		var aFuture = Future...
 
 	You can add aFuture to collections or pass it around. When you need the result,
 	use aFuture.value; this will block if the Future hasn't resolved (happened) yet.
 
 	You can also test if the Future has resolved with aFuture.resolved; this will not block.
 
-	Notice that someType can be an optional, and the closure/value may return nil to
+	Notice that someType can be an optional, and then the closure/value may return nil to
 	signal an error condition or timeout.
  */
-class Future <T> {
+class Future<T> {
 
 ///	This property is for internal use only and uses a combination mutex/lock to guarantee
 ///	asynchronous access to the _result property.
@@ -104,6 +106,8 @@ class Future <T> {
 	init(_ work: @auto_closure ()-> T) {
 		_run(work)
 	}
+
+//	The following two properties are the only external interface to a Future:	
 	
 ///	This computed property returns the actual Future value, and blocks while it is being resolved.
 	var value: T {
@@ -125,3 +129,6 @@ class Future <T> {
 	}
 	
 }
+
+
+
