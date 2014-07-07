@@ -11,7 +11,7 @@ The table is not updated automatically, but there's a refresh button to update i
 
 Updating the table might potentially take some time if the system is very busy, since code signatures and icons will probably have to be loaded from disk. To speed this up, a simple "Future" class is implemented and used to perform these accesses asynchronously. In my timing tests, this accelerates table refresh by just under 4x — quite fair on a 4-core machine.
 
-The project should build and run with no errors, warnings or crashes on OS X 10.10b2 and Xcode 6b2.
+The project should build and run with no errors, warnings or crashes on OS X 10.10b3 and Xcode 6.0b3.
 
 There are copious comments that, hopefully, explain some of the design decisions and workarounds where necessary.
 

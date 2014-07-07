@@ -74,12 +74,13 @@ class Future<T> {
 		var _result: T? = nil
 	causes a fatal compiler error "LLVM ERROR: unimplemented IRGen feature! non-fixed class layout"
 	and, even if it worked, might be somewhat ambiguous/tricky to handle if T is itself optional.
+	NOTE: this has been fixed in Xcode 6.0b3.
 	
-	So, implementing it as an array T[] has two benefits: it works around the compiler error,
-	and obviates the necessity of having an additional Bool to signal whether the Future has
-	resolved.
+	So, implementing it as an array [T] obviates the necessity of having an additional Bool to signal
+	whether the Future has resolved.
+	NOTE: new in Xcode 6.0b3 : syntax is now [T] instead of T[].
  */
-	var _result: T[] = []
+	var _result: [T] = []
 
 /**	@brief This function is for internal use only, avoiding code duplication.
 	

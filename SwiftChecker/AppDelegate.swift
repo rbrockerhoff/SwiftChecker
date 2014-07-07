@@ -184,7 +184,6 @@ class ProcessInfo: DebugPrintable, Comparable {
 	}
 }
 
-
 /**
 	This class is the Application delegate and also drives the table view. It's easier to
 	make a single class for such a simple case.
@@ -196,7 +195,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 	I start out with an empty array because AppDelegate.numberOfRowsInTableView()
 	is generally called several times before the array is filled.
  */
-	var processes: ProcessInfo[] = []
+	var processes: [ProcessInfo] = []
 
 //	These are normal outlets for UI elements.
 	@IBOutlet var theWindow: NSWindow
@@ -246,10 +245,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 
 //	I transform the process list into a sorted array of ProcessInfos. Note that I was able
 //	to use the shorthand sort() call here since ProcessInfo conforms to Comparable.
-		processes = sort(apps.map {
+		processes = apps.map {
 			(app) -> ProcessInfo in
 			return ProcessInfo(app as NSRunningApplication)
-		})
+		}
+		sort(&processes)	// new syntax in Xcode 6b3: sort parameter is inout, no value returned
 
 //	All is ready now to reload the table. I could call reloadData directly here but
 //	the UI would be slightly less responsive, and I wanted to test my PerformOnMain function.
