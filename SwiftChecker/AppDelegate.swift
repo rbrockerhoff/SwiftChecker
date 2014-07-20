@@ -8,214 +8,44 @@
 
 import Cocoa
 
-/*	These two operators allow appending a string to a NSMutableAttributedString.
-
-	var someString = NSMutableAttributedString()
-	someString += "text" // will append "text" to the string
-	someString += ("text", [NSForegroundColorAttributeName : NSColor.redColor()]) // will append red "text"
-
-	+= is already used for appending to a mutable string, so this is a useful shortcut.
-
-	Notice a useful feature in the second case: passing a tuple to an operator.
- */
-
-@assignment func += (inout left: NSMutableAttributedString, right: String) {
-	left.appendAttributedString(NSAttributedString(string: right, attributes: [:]))
-}
-
-@assignment func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
-	left.appendAttributedString(NSAttributedString(string: right.str, attributes: right.att))
-}
-
-//	Some preset style attributes for that last function. Note that these are Dictionaries of different
-//	types, but we don't care as the += will cast them to NSDictionary.
-let styleRED = [NSForegroundColorAttributeName:NSColor.redColor()]
-let styleBLUE = [NSForegroundColorAttributeName:NSColor.blueColor()]
-let styleBOLD12 = [NSFontAttributeName:NSFont.boldSystemFontOfSize(12)]
-let styleNORM12 = [NSFontAttributeName:NSFont.systemFontOfSize(12)]
-
-/**
-	@brief This class represents a running process and corresponds to one row in the NSTableView.
-
-	I made it a class rather than a struct because two of the properties are Futures (check
-	Future.swift for the implementation). Copying a struct while a Future is still unresolved
-	will either make the copy never resolve, or will hurt my head if both resolve. :-)
-
-	Rather than make a separate .swift file for this class, I found it easier to include it here.
- */
-
-/*	Global functions for comparing ProcessInfos; must define < and ==
-	Here we use the bundleName in Finder order, convenient for sorting.
- */
-func < (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Comparable
-	return lhs.bundleName.localizedStandardCompare(rhs.bundleName) == NSComparisonResult.OrderedAscending
-}
-
-func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equatable and Comparable
-	return lhs.bundleName.localizedStandardCompare(rhs.bundleName) == NSComparisonResult.OrderedSame
-}
-
-class ProcessInfo: DebugPrintable, Comparable {
-	
-///	This computed property is for debugging (DebugPrintable protocol)
-	var debugDescription: String {
-		return "“\(bundleName)”"
-	}
-
-///	This read-only property contains the localized bundle name (without extension).
-	let bundleName: String
-
-///	This is the backing property for the (computed) icon property. Internal use only!
-	let _icon: Future<NSImage>
-
-/**
-	This is a computed property (so it must be var). It will get the future
-	value from the _icon Future, meaning it will block while the icon
-	is obtained.
- */
-	var icon: NSImage {
-		return _icon.value
-	}
-
-///	This is the backing property for the (computed) text property. Internal use only!
-	let _text: Future<NSAttributedString>
-	
-/**
-	This is a computed property (so it must be var). It will get the future
-	value from the _text Future, meaning it will block while the text
-	is obtained.
- */
-	var text: NSAttributedString {
-		return _text.value
-	}
-	
-/**	This single & only initializer does all the heavy lifting.
-	It uses Futures to get the bundle icon and to setup the displayed text, as it will
-	contain the certificate summaries from the summaries.
- */
-	init(_ theapp: NSRunningApplication) {
-
-//	Precalculate some values we'll need later on
-		let name = theapp.localizedName
-		let url = theapp.bundleURL
-		let fpath = url.path.stringByDeletingLastPathComponent
-		let arch = theapp.executableArchitecture
-
-		bundleName = name
-
-//	The icon will probably be read from disk, so making this a Future is a good thing.
-		_icon = Future {
-			var image: NSImage = theapp.icon
-			image.size = NSMakeSize(64,64)		// hardcoded to match the table column size
-			return image
-		}
-
-/*	The text is built up in sections and, if a signature is present, this will get the sandboxed
-	attribute and the signing certificates from the signature and append the summaries.
-	Reading signatures from disk means a Future is useful, here, too.
- */
-		_text = Future {
-
-//	Start off with the localized bundle name in bold
-			var result = NSMutableAttributedString(string: name, attributes: styleBOLD12)
-			
-//	Add the architecture as a bonus value
-			switch arch {
-			case NSBundleExecutableArchitectureI386:
-				result += " (32-bit)"
-			case NSBundleExecutableArchitectureX86_64:
-				result += " (64-bit)"
-			default:
-				break
-			}
-			
-//	Add the containing folder path — path components should be localized, perhaps?
-			result += (" in “\(fpath)”\n...", styleNORM12)
-			
-//	GetCodeSignatureForURL() may return nil, an empty dictionary, or a dictionary with parts missing.
-			if let signature = GetCodeSignatureForURL(url) {
-				
-//	The entitlements dictionary may also be missing.
-				if let entitlements = signature["entitlements-dict"] as? NSDictionary {
-					if let sandbox = entitlements["com.apple.security.app-sandbox"] as? NSNumber {
-						
-//	Even if the sandbox entitlement is present it may be 0
-						if  sandbox.intValue != 0 {
-							result += ("sandboxed, ", styleBLUE)	// blue text to stand out
-						}
-					}
-				}
-				
-//	The certificates array may be empty or missing entirely.
-				result += "signed "
-				var signed = false;
-
-//	Unfortunately, autoclosure of the right-hand side of && and || means you cannot do things like
-//	if let a = b && a.f() { … }. Hence the Bool flag.
-				if let certificates = signature["certificates"] as? NSArray {
-					if certificates.count > 0 {
-						signed = true
-						
-//	Some map & reduce calls to use 'functional programming' - note this creates an intermediate
-//	summaries array. There usually are 3 certificates, so this isn't too onerous.
-						let summaries = (certificates as Array).map {
-							(cert) -> String in
-							if let summary = GetCertSummary(cert) {
-								return summary
-							}
-							return "<?>"	// GetCertSummary() returned nil
-						}
-						
-//	Concatenating with commas is easy now
-						result += "by "+summaries.reduce("") {
-							return $0.isEmpty ? $1 : $0+", "+$1
-						}
-					}
-				}
-				
-				if (!signed) {	// signed but no certificates
-					result += "without certificates"
-				}
-			} else {	// code signature missing
-				result += ("unsigned", styleRED)	// red text to stand out
-			}
-			return result
-		}
-	}
-}
-
+//	================================================================================
 /**
 	This class is the Application delegate and also drives the table view. It's easier to
-	make a single class for such a simple case.
- */
+	make a single class for such a simple app.
+*/
 class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate {
-
+	
 /*	This Array contains the currently showing list of processes.
 	
 	I start out with an empty array because AppDelegate.numberOfRowsInTableView()
 	is generally called several times before the array is filled.
  */
-	var processes: [ProcessInfo] = []
-
-//	These are normal outlets for UI elements.
+	var processes: [ ProcessInfo ] = [ ]
+	
+	///	This is a dictionary of the currently running processes, indexed by processIdentifier (pid)
+	var procdict: [ pid_t : ProcessInfo ] = [ : ]
+	
+	//	These are normal outlets for UI elements.
 	@IBOutlet var theWindow: NSWindow
 	@IBOutlet var theTable: NSTableView
+	
+//	--------------------------------------------------------------------------------
+//	NSTableViewDataSource and NSTableViewDelegate methods
 
-
-///	This NSTableViewDataSource method returns the number of processes: one per row.
+	///	This NSTableViewDataSource method returns the number of processes: one per row.
 	func numberOfRowsInTableView(tableView: NSTableView!) -> Int {
 		return processes.count
 	}
-
-///	This NSTableViewDelegate method gets a NSTableCellView from the xib and
-///	populates it with the process's icon or text.
+	
+	///	This NSTableViewDelegate method gets a NSTableCellView from the xib and
+	///	populates it with the process's icon or text.
 	func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
-		let identifier = tableColumn.identifier
+		let identifier = tableColumn.identifier!
 		let info = processes[row]
-
-//	Note that in the xib "1" and "2" are identifiers for both NSTableColumns and NSTableCellViews.
+		
+		//	Note that in the xib "1" and "2" are identifiers for both NSTableColumns and NSTableCellViews.
 		let view = tableView.makeViewWithIdentifier(identifier, owner: self) as NSTableCellView
-		switch tableColumn.identifier! {
+		switch identifier {
 		case "1":
 			view.imageView.image = info.icon	// blocks until the icon is ready
 		case "2":
@@ -225,69 +55,190 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 		}
 		return view
 	}
-
-///	This NSTableViewDelegate method just prevents any row from being selected.
+	
+	///	This NSTableViewDelegate method just prevents any row from being selected.
 	func tableView(tableView: NSTableView!, shouldSelectRow row: Int) -> Bool {
 		return false
 	}
+	
+//	--------------------------------------------------------------------------------
+//	Observers
 
-/**
-	This action method is called when the refresh button is pressed, but also
-	once when the app starts up.
-	The argument is an optional because on startup it gets called with nil; since
-	I don't use sender for anything, it could be tested to do extra stuff on startup.
- */
-@IBAction func refreshButton(sender: AnyObject?) {
-
-//	I get the list of running applications - note that this doesn't include processes running
-//	outside user space.
-		let apps = NSWorkspace.sharedWorkspace().runningApplications
-
-//	I transform the process list into a sorted array of ProcessInfos. Note that I was able
-//	to use the shorthand sort() call here since ProcessInfo conforms to Comparable.
-		processes = apps.map {
-			(app) -> ProcessInfo in
-			return ProcessInfo(app as NSRunningApplication)
+///	This KVO observer is called whenever the list of running applications changes.
+	override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [ NSObject : AnyObject]!, context: UnsafePointer<()>) {
+		
+		//	Need the change kind as a number
+		switch change[NSKeyValueChangeKindKey!] as NSNumber {
+			
+		//	...to match with raw values from the NSKeyValueChange enum. Least stressful way to do this?
+		case NSKeyValueChange.Insertion.toRaw():
+			
+			//	Get the inserted apps (usually only one, but you never know
+			if let apps = change[NSKeyValueChangeNewKey!] as? NSArray {
+				//	Add the apps into the process dictionary
+				_merge(apps)
+			}
+			
+		case NSKeyValueChange.Removal.toRaw():
+			
+			//	Get the removed apps (usually only one, but you never know
+			if let apps = change[NSKeyValueChangeOldKey!] as? NSArray {
+				//	Remove the apps from the process dictionary
+				_merge(apps)
+			}
+			
+		default:
+			return	// nothing to refresh; should never happen
 		}
-		sort(&processes)	// new syntax in Xcode 6b3: sort parameter is inout, no value returned
-
-//	All is ready now to reload the table. I could call reloadData directly here but
-//	the UI would be slightly less responsive, and I wanted to test my PerformOnMain function.
-		PerformOnMain {
-			self.theTable.reloadData()
-		}
+		
+		//	Finally, refresh the table.
+		_refresh()
 	}
+	
+//	--------------------------------------------------------------------------------
+//	NSApplicationDelegate methods
 
-//	This NSApplicationDelegate method is called as soon as the app's icon begins
-//	bouncing in the Dock.
+	///	This NSApplicationDelegate method is called as soon as the app's icon begins
+	///	bouncing in the Dock.
 	func applicationWillFinishLaunching(aNotification: NSNotification?) {
+		
+		//	This is one of several prints of timing information that works only on Debug builds.
+		//	Note that startup is defined/initialized inside main.swift!
+		PrintLN("willFinish; \(startup.age) after startup")
+		
+		let workspace = NSWorkspace.sharedWorkspace()
 
-/*	I use the new transparent title bar option in 10.10
-	(there seems to be no IB flag for it yet). The window's "visible at launch"
-	option must be turned off for this to work.
- */
-		theWindow.titlebarAppearsTransparent = true
-		theWindow.styleMask |= NSFullSizeContentViewWindowMask
-		theWindow.makeKeyAndOrderFront(self)
-
-/*	I simulate a click on the refresh button, to set the table up for the
-	first time - the Futures will make the protracted parts run in parallel
-	while the app starts up.
- */
-		refreshButton(nil)
+		//	This adds the app delegate as observer of NSWorkspace's list of running applications.
+		//	(note that this list only includes processes running inside user space)
+		workspace.addObserver(self, forKeyPath: "runningApplications", options: .Old | .New, context: &KVOContext)
+		
+		//	Build the process dictionary from the list of running applications	
+		_merge(workspace.runningApplications)
+		
+		//	Finally, refresh the table.
+		_refresh()
 	}
-
-/**	This NSApplicationDelegate method is called when all is ready and the app's icon
-	stops bouncing in the Dock.
- */
+	
+	/**	This NSApplicationDelegate method is called when all is ready and the app's icon
+		stops bouncing in the Dock.
+	 */
 	func applicationDidFinishLaunching(aNotification: NSNotification?) {
-//	Yep, it does nothing. Early on I had some debugging code in here.
+		PrintLN("didFinish; \(startup.age) after startup")
+		//	Yep, it does nothing else. Early on I had some debugging code in here.
 	}
-
-///	This NSApplicationDelegate method quits the app when the window is closed.
+	
+	///	This NSApplicationDelegate method quits the app when the window is closed.
 	func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication!)->Bool {
 		return true
 	}
+	
+	///	This NSApplicationDelegate method is called just before termination.
+	func applicationWillTerminate(aNotification: NSNotification!) {
+		PrintLN("willTerminate; \(startup.age) after startup")
+	}
+	
+//	--------------------------------------------------------------------------------
+//	private functions
 
-}
+///	This function is called to refresh the table.
+	func _refresh() {
+		var time = TimeStamp("Table refresh")
+		
+		/*	Get the array of processes from the process dictionary, which at this point must be set up.
+			Notice that procdict.values actually returns a lazily evaluated MapCollectionView, so we
+			can sort it immediately.
+		*/
+		processes = sorted(procdict.values)
+		
+		/*	All is ready now to reload the table. That is better done on the main thread and
+			this function may be called before the run loop is started, so I call PerformOnMain()
+			which is the new way of doing performSelectorOnMainThread:
+		*/
+		PerformOnMain {
+			self.theTable.reloadData()
+		}
+		
+		PrintLN(time.freeze())
+	}
+	
+	/**
+		This function merges an array of NSRunningApplication into the procdict
+		Dictionary, inserting or removing as necessary. It uses one of the Dictionary
+		extensions for that.
+	*/
+	func _merge (apps: NSArray) {
+		if let apps = apps as? Array<NSRunningApplication> {
+			procdict.merge(apps) {
+				(app) in
+				let pid = app.processIdentifier
+				if pid == -1 {
+					return nil	//	ignore apps without a pid
+				}
+				let remove = app.terminated
+				let msg = remove ? "Removed " : "Inserted "
+				PrintLN(msg + app.localizedName)
+				return (pid, remove ? nil : ProcessInfo(app))
+			}
+		}
+	}
+	
+}	// end of AppDelegate
+
+///	global variable used as unique context for KVO
+var KVOContext: Int = 0
+
+//	--------------------------------------------------------------------------------
+/*	Extensions to Dictionary. SwiftChecker uses only one of those, but they
+	may be useful elsewhere.
+
+	The idea is to modify the Dictionary, either from an input array of (key,value) tuples,
+	or from an input array of any type which is then processed by a generator function/closure
+	to produce the tuples.
+
+	In the latter case, the generator function can return nil to filter out that item
+	from the input array, return a (key,value) tuple to insert or change an item, or
+	a (key,nil) tuple to remove an item. See ProcessInfo._merge() above for an example.
+
+	Both types of funcs are duplicated to accept either an Array or a Sequence, which should
+	cover most common cases - basically, you should be able to pass in anything that
+	can also appear in a for…in statement. (Haven't tested for Ranges and Slices, though.)
+*/
+
+extension Dictionary {
+	
+//	Allow merging an array of (key,value) tuples to a Dictionary.
+	mutating func merge (array: Array<Element>) {
+		for (key: KeyType, value: ValueType) in array {
+			self[key] = value
+		}
+	}
+	
+//	Allow merging a sequence of (key,value) tuples to a Dictionary.
+	mutating func merge <S: Sequence where S.GeneratorType.Element == Element> (seq: S) {
+		var gen = seq.generate()
+		while let (key: KeyType, value: ValueType) = gen.next() {
+			self[key] = value
+		}
+	}
+	
+//	Allow merging an array of values to a Dictionary, by specifying a generator function.
+	mutating func merge <T> (array: Array<T>, filter: (T) -> (KeyType, ValueType?)?) {
+		for t in array {
+			if let (key: KeyType, value: ValueType?) = filter(t) {
+				self[key] = value ? value! : nil
+			}
+		}
+	}
+	
+//	Allow merging a sequence of values to a Dictionary by specifying a generator function.
+	mutating func merge <T, S: Sequence where S.GeneratorType.Element == T> (seq: S, filter: (T) -> (KeyType, ValueType?)?) {
+		var gen = seq.generate()
+		while let t: T = gen.next() {
+			if let (key: KeyType, value: ValueType?) = filter(t) {
+				self[key] = value ? value! : nil
+			}
+		}
+	}
+	
+}	// end of Dictionary extension
 

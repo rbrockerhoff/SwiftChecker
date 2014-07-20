@@ -8,4 +8,8 @@
 
 import Cocoa
 
+//	This TimeStamp is used in AppDelegate to log startup and quit times.
+let startup = TimeStamp()
+PrintLN("Started at \(startup)")
+
 NSApplicationMain(C_ARGC, C_ARGV)

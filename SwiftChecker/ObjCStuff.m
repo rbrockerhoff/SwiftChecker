@@ -14,20 +14,6 @@
 	these APIs directly from Swift, I gave up for now.
  */
 
-/// Returns a code signature dictionary for the URL, or nil for error.
-NSDictionary* GetCodeSignatureForURL(CFURLRef url) {
-	NSDictionary* dict = nil;
-	SecStaticCodeRef code = NULL;
-	if (url) {
-		OSStatus err = SecStaticCodeCreateWithPath(url, kSecCSDefaultFlags, &code);
-		if (err==noErr) {
-			err = SecCodeCopySigningInformation(code, kSecCSSigningInformation, (CFDictionaryRef*)&dict);
-			CFRelease(code);
-		}
-	}
-	return [dict autorelease];
-}
-
 /// Returns a summary string for a SecCertificateRef (cast to id), or nil for error.
 NSString* GetCertSummary(id cert) {
 	NSString* summary = (NSString*)SecCertificateCopySubjectSummary((SecCertificateRef)cert);

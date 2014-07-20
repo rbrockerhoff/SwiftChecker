@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		74718385195CC6A0009CF404 /* ObjCStuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 74718384195CC6A0009CF404 /* ObjCStuff.m */; };
+		741C73EE1976F45E004AD6AA /* Timing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 741C73ED1976F45E004AD6AA /* Timing.swift */; };
 		747A454E194A3888005359A3 /* SwiftChecker.xib in Resources */ = {isa = PBXBuildFile; fileRef = 747A454D194A3888005359A3 /* SwiftChecker.xib */; };
+		7481175E1978A20800D93AA5 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7481175D1978A20800D93AA5 /* ProcessInfo.swift */; };
 		74BA4469196091E600F94DE7 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 74BA4467196090C800F94DE7 /* Credits.rtf */; };
 		74C2748719411122006C9A3B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748619411122006C9A3B /* main.swift */; };
 		74C2748B19411122006C9A3B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748A19411122006C9A3B /* AppDelegate.swift */; };
@@ -27,10 +28,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		741C73ED1976F45E004AD6AA /* Timing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timing.swift; sourceTree = "<group>"; };
 		745B96C019492EB300962E61 /* SwiftChecker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftChecker-Bridging-Header.h"; sourceTree = "<group>"; };
-		74718383195CC6A0009CF404 /* ObjCStuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCStuff.h; sourceTree = "<group>"; };
-		74718384195CC6A0009CF404 /* ObjCStuff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjCStuff.m; sourceTree = "<group>"; };
 		747A454D194A3888005359A3 /* SwiftChecker.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SwiftChecker.xib; sourceTree = "<group>"; };
+		7481175D1978A20800D93AA5 /* ProcessInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
 		74BA4467196090C800F94DE7 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		74C2748119411122006C9A3B /* SwiftChecker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftChecker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		74C2748519411122006C9A3B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -90,8 +91,8 @@
 				74C274A7194115C1006C9A3B /* README.md */,
 				74C2748A19411122006C9A3B /* AppDelegate.swift */,
 				74C274A819492CD9006C9A3B /* Future.swift */,
-				74718383195CC6A0009CF404 /* ObjCStuff.h */,
-				74718384195CC6A0009CF404 /* ObjCStuff.m */,
+				7481175D1978A20800D93AA5 /* ProcessInfo.swift */,
+				741C73ED1976F45E004AD6AA /* Timing.swift */,
 				74C2748419411122006C9A3B /* Supporting Files */,
 				745B96C019492EB300962E61 /* SwiftChecker-Bridging-Header.h */,
 			);
@@ -224,7 +225,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74718385195CC6A0009CF404 /* ObjCStuff.m in Sources */,
+				7481175E1978A20800D93AA5 /* ProcessInfo.swift in Sources */,
+				741C73EE1976F45E004AD6AA /* Timing.swift in Sources */,
 				74C2748B19411122006C9A3B /* AppDelegate.swift in Sources */,
 				74C274A919492CD9006C9A3B /* Future.swift in Sources */,
 				74C2748719411122006C9A3B /* main.swift in Sources */,
@@ -287,6 +289,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				METAL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-D DEBUG";
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -338,7 +341,6 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = SwiftChecker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "SwiftChecker/SwiftChecker-Bridging-Header.h";
@@ -357,7 +359,6 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				INFOPLIST_FILE = SwiftChecker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "SwiftChecker/SwiftChecker-Bridging-Header.h";

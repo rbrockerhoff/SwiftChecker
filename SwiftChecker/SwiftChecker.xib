@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6154.21" systemVersion="14A261i" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6185.7" systemVersion="14A283o" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="101000" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6154.21"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6185.7"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication"/>
@@ -367,7 +367,7 @@
                 </menuItem>
             </items>
         </menu>
-        <window title="SwiftChecker" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="SwiftChecker" animationBehavior="default" id="F0z-JX-Cv5">
+        <window title="SwiftChecker" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" frameAutosaveName="SwiftChecker" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="196" y="240" width="600" height="270"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
@@ -376,9 +376,9 @@
                 <rect key="frame" x="0.0" y="0.0" width="600" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <scrollView focusRingType="none" misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="70" horizontalPageScroll="10" verticalLineScroll="70" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RPg-Yq-BAA">
-                        <rect key="frame" x="20" y="20" width="545" height="222"/>
-                        <clipView key="contentView" focusRingType="none" misplaced="YES" drawsBackground="NO" id="OYw-XP-NqC">
+                    <scrollView focusRingType="none" autohidesScrollers="YES" horizontalLineScroll="70" horizontalPageScroll="10" verticalLineScroll="70" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RPg-Yq-BAA">
+                        <rect key="frame" x="20" y="20" width="560" height="230"/>
+                        <clipView key="contentView" focusRingType="none" drawsBackground="NO" id="OYw-XP-NqC">
                             <rect key="frame" x="1" y="17" width="238" height="117"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
@@ -418,7 +418,7 @@
                                                 </tableCellView>
                                             </prototypeCellViews>
                                         </tableColumn>
-                                        <tableColumn identifier="2" width="475" minWidth="300" maxWidth="3.4028234663852886e+38" id="Pj4-mV-wBT">
+                                        <tableColumn identifier="2" width="490" minWidth="300" maxWidth="3.4028234663852886e+38" id="Pj4-mV-wBT">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -432,11 +432,11 @@
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
                                             <prototypeCellViews>
                                                 <tableCellView identifier="2" id="osO-xX-iSq">
-                                                    <rect key="frame" x="67" y="1" width="475" height="64"/>
+                                                    <rect key="frame" x="67" y="1" width="490" height="64"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
-                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ErB-xF-7iK">
-                                                            <rect key="frame" x="0.0" y="0.0" width="396" height="64"/>
+                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ErB-xF-7iK">
+                                                            <rect key="frame" x="0.0" y="0.0" width="494" height="64"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="64" id="x6o-S2-1c0"/>
                                                             </constraints>
@@ -476,33 +476,15 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
-                    <button horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gdx-cI-aCP">
-                        <rect key="frame" x="788" y="248" width="20" height="22"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="20" id="hys-1Z-7TA"/>
-                        </constraints>
-                        <buttonCell key="cell" type="bevel" bezelStyle="circular" image="NSRefreshTemplate" imagePosition="only" alignment="left" imageScaling="proportionallyDown" id="G72-X6-Gac">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="label"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="refreshButton:" target="EdN-fa-4Mx" id="1SX-FU-LJ7"/>
-                        </connections>
-                    </button>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="RPg-Yq-BAA" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="28" id="FeR-Gs-Yff"/>
-                    <constraint firstItem="gdx-cI-aCP" firstAttribute="trailing" secondItem="RPg-Yq-BAA" secondAttribute="trailing" id="KZA-Nt-oaV"/>
+                    <constraint firstItem="RPg-Yq-BAA" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" id="FeR-Gs-Yff"/>
                     <constraint firstAttribute="trailing" secondItem="RPg-Yq-BAA" secondAttribute="trailing" constant="20" symbolic="YES" id="L52-yA-hDV"/>
-                    <constraint firstItem="gdx-cI-aCP" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" id="NN0-XG-zGG"/>
                     <constraint firstAttribute="bottom" secondItem="RPg-Yq-BAA" secondAttribute="bottom" constant="20" symbolic="YES" id="ifq-sm-uxu"/>
                     <constraint firstItem="RPg-Yq-BAA" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="izY-ud-1RS"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="361.5" y="403"/>
+            <point key="canvasLocation" x="361" y="403"/>
         </window>
     </objects>
-    <resources>
-        <image name="NSRefreshTemplate" width="11" height="15"/>
-    </resources>
 </document>
