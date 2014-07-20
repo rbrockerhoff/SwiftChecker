@@ -199,7 +199,7 @@ func + (left: TimeStamp, right: Double) -> TimeStamp {
 	return TimeStamp(left.absolute, left.time + Int64(right / TimeStamp._factor), nil)
 }
 
-//	--------------------------------------------------------------------------------
+//	================================================================================
 //	Useful functions for benchmarking a closure
 
 typealias BenchClosure = () -> Any?

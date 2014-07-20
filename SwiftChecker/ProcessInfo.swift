@@ -11,34 +11,33 @@ import Cocoa
 //	================================================================================
 /**
 	This class represents a running process and corresponds to one row in the NSTableView.
+	It obtains and caches data displayed by the table.
 */
-class ProcessInfo: DebugPrintable, Comparable {
+class ProcessInfo: Comparable {		// Comparable implies Equatable
 	
 //	--------------------------------------------------------------------------------
 //	initializer
 	
 	/**
 		This single & only initializer does all the heavy lifting by getting data
-		from the NSRunningApplication parameter
+		from the NSRunningApplication parameter.
 	
 		It uses Futures to get the bundle icon and to setup the displayed text, which will
 		also contain the certificate summaries from the code signature.
 	*/
-	init(_ theapp: NSRunningApplication) {
+	init(_ app: NSRunningApplication) {
 		
 		//	Precalculate some values we'll need later on
-		let name = theapp.localizedName
-		let url = theapp.bundleURL
+		let name = app.localizedName
+		let url = app.bundleURL
 		let fpath = url.path.stringByDeletingLastPathComponent
-		let arch = theapp.executableArchitecture
 		
 		bundleName = name
-		processIdentifier = theapp.processIdentifier
 		
 		//	The icon may be read from disk, so making this a Future may save time. Still, the usual
 		//	time to resolve is under 1 ms in my benchmarks.
 		_icon = FutureDebug("\tIcon for \(name)") {
-			var image: NSImage = theapp.icon
+			var image: NSImage = app.icon
 			image.size = NSSize(width: 64, height: 64)		// hardcoded to match the table column size
 			return image
 		}
@@ -54,7 +53,7 @@ class ProcessInfo: DebugPrintable, Comparable {
 			var result = NSMutableAttributedString(string: name, attributes: styleBOLD12)
 			
 			//	Add the architecture as a bonus value
-			switch arch {
+			switch app.executableArchitecture {
 			case NSBundleExecutableArchitectureI386:
 				result += " (32-bit)"
 			case NSBundleExecutableArchitectureX86_64:
@@ -117,11 +116,6 @@ class ProcessInfo: DebugPrintable, Comparable {
 //	--------------------------------------------------------------------------------
 //	public properties
 
-	///	This computed property is for debugging (DebugPrintable protocol)
-	var debugDescription: String {
-		return "“\(bundleName)”"
-	}
-	
 	///	This read-only property contains the localized bundle name (without extension).
 	let bundleName: String
 	
@@ -142,16 +136,14 @@ class ProcessInfo: DebugPrintable, Comparable {
 	var text: NSAttributedString {
 		return _text	// note: implicit downcast to .value
 	}
-	
-	let processIdentifier: pid_t
 
 //	--------------------------------------------------------------------------------
 //	private properties
 	
-///	This is the backing property for the (computed) icon property. Internal use only!
+///	This is the backing property for the (computed) icon property.
 	let _icon: Future <NSImage>
 	
-///	This is the backing property for the (computed) text property. Internal use only!
+///	This is the backing property for the (computed) text property.
 	let _text: Future <NSAttributedString>
 
 }	// end of ProcessInfo

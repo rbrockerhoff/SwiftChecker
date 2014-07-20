@@ -20,6 +20,8 @@ The Xcode project itself is largely unchanged from the default setup and options
 - Some build options have been set, most importantly "treat warnings as errors", and "-D DEBUG" in "Other Swift Flags".
 
 Recent changes:
+- Fixed a bug when applications were automatically quit.
+- Some more refactoring for less code.
 - Updated for beta 3.
 - For Debug builds various timing information is printed to the console.
 - General source and comments reorganization, hopefully for better readability.
