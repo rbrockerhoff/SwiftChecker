@@ -8,12 +8,22 @@
 
 import Cocoa
 
+//MARK: private class AppDelegate
 //	================================================================================
 /**
 	This class is the Application delegate and also drives the table view. It's easier to
 	make a single class for such a simple app.
 */
-class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate {
+private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate {
+	
+//	--------------------------------------------------------------------------------
+//MARK: initializers
+	private init() {
+		super.init()
+	}
+	
+//	--------------------------------------------------------------------------------
+//MARK: properties and outlets
 	
 /**
 	This is a dictionary of the currently running processes. The key is a NSRunningApplication
@@ -26,7 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 	out that applications can be quit automatically (losing their pid) and then restart and be assigned
 	a new one, messing up the display.
  */
-	var procdict: [ NSRunningApplication : ProcessInfo ] = [ : ]
+	private var procdict: [ NSRunningApplication : ProcessInfo ] = [ : ]
 	
 /**
 	This Array contains cached data for the current list of processes in the GUI.
@@ -35,23 +45,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 	I start out with an empty array because AppDelegate.numberOfRowsInTableView()
 	is generally called several times before the array is filled.
  */
-	var processes: [ ProcessInfo ] = [ ]
+	private var processes: [ ProcessInfo ] = [ ]
 	
 	//	These are normal outlets for UI elements.
-	@IBOutlet var theWindow: NSWindow
-	@IBOutlet var theTable: NSTableView
+	@IBOutlet private var theWindow: NSWindow!
+	@IBOutlet private var theTable: NSTableView!
 	
 //	--------------------------------------------------------------------------------
-//	NSTableViewDataSource and NSTableViewDelegate methods
+//MARK: NSTableViewDataSource and NSTableViewDelegate methods
 
 	///	This NSTableViewDataSource method returns the number of processes: one per row.
-	func numberOfRowsInTableView(tableView: NSTableView!) -> Int {
+	private func numberOfRowsInTableView(tableView: NSTableView!) -> Int {
 		return processes.count
 	}
 	
 	///	This NSTableViewDelegate method gets a NSTableCellView from the xib and
 	///	populates it with the process's icon or text.
-	func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
+	private func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
 		let identifier = tableColumn.identifier!
 		let info = processes[row]
 		
@@ -69,15 +79,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 	}
 	
 	///	This NSTableViewDelegate method just prevents any row from being selected.
-	func tableView(tableView: NSTableView!, shouldSelectRow row: Int) -> Bool {
+	private func tableView(tableView: NSTableView!, shouldSelectRow row: Int) -> Bool {
 		return false
 	}
 	
 //	--------------------------------------------------------------------------------
-//	Observers
+//MARK: observers
 
 ///	This KVO observer is called whenever the list of running applications changes.
-	override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [ NSObject : AnyObject]!, context: UnsafePointer<()>) {
+	private override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [ NSObject : AnyObject]!, context: UnsafePointer<()>) {
 		
 		var apps: NSArray? = nil
 
@@ -104,11 +114,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 	}
 	
 //	--------------------------------------------------------------------------------
-//	NSApplicationDelegate methods
+//MARK: NSApplicationDelegate methods
 
 	///	This NSApplicationDelegate method is called as soon as the app's icon begins
 	///	bouncing in the Dock.
-	func applicationWillFinishLaunching(aNotification: NSNotification?) {
+	private func applicationWillFinishLaunching(aNotification: NSNotification?) {
 		
 		//	This is one of several prints of timing information that works only on Debug builds.
 		//	Note that startup is defined/initialized inside main.swift!
@@ -127,27 +137,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 	/**	This NSApplicationDelegate method is called when all is ready and the app's icon
 		stops bouncing in the Dock.
 	 */
-	func applicationDidFinishLaunching(aNotification: NSNotification?) {
+	private func applicationDidFinishLaunching(aNotification: NSNotification?) {
 		PrintLN("didFinish; \(startup.age) after startup")
 		//	Yep, it does nothing else. Early on I had some debugging code in here.
 	}
 	
 	///	This NSApplicationDelegate method quits the app when the window is closed.
-	func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication!)->Bool {
+	private func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication!)->Bool {
 		return true
 	}
 	
 	///	This NSApplicationDelegate method is called just before termination.
-	func applicationWillTerminate(aNotification: NSNotification!) {
+	private func applicationWillTerminate(aNotification: NSNotification!) {
 		PrintLN("willTerminate; \(startup.age) after startup")
 		NSWorkspace.sharedWorkspace().removeObserver(self, forKeyPath: "runningApplications")
 	}
 	
 //	--------------------------------------------------------------------------------
-//	private functions
+//MARK: private functions
 
 	///	This function updates the GUI based on an Array of changed NSRunningApplications.
-	func _update (apps: NSArray?) {
+	private func _update (apps: NSArray?) {
 		
 		///	Proceed if we really have an Array of applications - may be nil.
 		if let apps = apps as? Array<NSRunningApplication> {
@@ -179,34 +189,41 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
 	
 }	// end of AppDelegate
 
+//MARK: globals
 ///	global variable used as unique context for KVO
-var KVOContext: Int = 0
+private var KVOContext: Int = 0
 
+//MARK:	extensions
 //	--------------------------------------------------------------------------------
 /*	Extensions to Dictionary. SwiftChecker uses only one of those, but they
 	may be useful elsewhere.
 
 	The idea is to modify the Dictionary, either from an input Sequence of (key,value) tuples,
-	or from an input Sequence of any type which is then processed by a generator function/closure
+	or from an input Sequence of any type which is then processed by a filter function/closure
 	to produce the tuples.
 
-	In the latter case, the generator function can return nil to filter out that item
+	In the latter case, the filter function can return nil to filter out that item
 	from the input Sequence, return a (key,value) tuple to insert or change an item, or
 	a (key,nil) tuple to remove an item. See AppDelegate._update() above for an example.
 */
 
-extension Dictionary {
+public extension Dictionary {
 	
-//	Allow merging a sequence of (key,value) tuples to a Dictionary.
-	mutating func merge <S: Sequence where S.GeneratorType.Element == Element> (seq: S) {
+	///	Merges a sequence of (key,value) tuples into a Dictionary.
+	public mutating func merge <S: Sequence where S.GeneratorType.Element == Element> (seq: S) {
 		var gen = seq.generate()
 		while let (key: KeyType, value: ValueType) = gen.next() {
 			self[key] = value
 		}
 	}
 	
-//	Allow merging a sequence of values to a Dictionary by specifying a generator function.
-	mutating func merge <T, S: Sequence where S.GeneratorType.Element == T> (seq: S, filter: (T) -> (KeyType, ValueType?)?) {
+	/**
+		Merges a sequence of values into a Dictionary by specifying a filter function.
+		The filter function can return nil to filter out that item from the input Sequence,
+		or return a (key,value) tuple to insert or change an item. In that case, value can be
+		nil to remove the item for that key.
+	*/
+	public mutating func merge <T, S: Sequence where S.GeneratorType.Element == T> (seq: S, filter: (T) -> (KeyType, ValueType?)?) {
 		var gen = seq.generate()
 		while let t: T = gen.next() {
 			if let (key: KeyType, value: ValueType?) = filter(t) {

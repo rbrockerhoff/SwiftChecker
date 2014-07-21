@@ -8,15 +8,16 @@
 
 import Cocoa
 
+//MARK: public class ProcessInfo
 //	================================================================================
 /**
 	This class represents a running process and corresponds to one row in the NSTableView.
 	It obtains and caches data displayed by the table.
 */
-class ProcessInfo: Comparable {		// Comparable implies Equatable
+public class ProcessInfo: Comparable {		// Comparable implies Equatable
 	
 //	--------------------------------------------------------------------------------
-//	initializer
+//MARK:	initializers
 	
 	/**
 		This single & only initializer does all the heavy lifting by getting data
@@ -25,7 +26,7 @@ class ProcessInfo: Comparable {		// Comparable implies Equatable
 		It uses Futures to get the bundle icon and to setup the displayed text, which will
 		also contain the certificate summaries from the code signature.
 	*/
-	init(_ app: NSRunningApplication) {
+	public init(_ app: NSRunningApplication) {
 		
 		//	Precalculate some values we'll need later on
 		let name = app.localizedName
@@ -82,7 +83,7 @@ class ProcessInfo: Comparable {		// Comparable implies Equatable
 				
 				//	The certificates array may be empty or missing entirely.
 				result += "signed "
-				var haveCert = false;
+				var haveCert = false
 				
 				//	Unfortunately, autoclosure of the right-hand side of && and || means you cannot do things like
 				//	if let a = b && a.f() { … }. Hence the Bool flag.
@@ -94,7 +95,7 @@ class ProcessInfo: Comparable {		// Comparable implies Equatable
 						let summaries = (certificates as Array).map {
 							(cert) -> String in
 							if let summary = GetCertSummary(cert) {
-								return summary
+								return String(summary)	// CFString has to be converted
 							}
 							return "<?>"	// GetCertSummary() returned nil
 						}
@@ -114,18 +115,18 @@ class ProcessInfo: Comparable {		// Comparable implies Equatable
 	}
 
 //	--------------------------------------------------------------------------------
-//	public properties
+//MARK:	public properties
 
 	///	This read-only property contains the localized bundle name (without extension).
-	let bundleName: String
+	public let bundleName: String
 	
 	/**
 		This is a computed property (so it must be var). It will get the future
 		value from the _icon Future, meaning it will block while the icon
 		is obtained.
 	 */
-	var icon: NSImage {
-		return _icon	// note: implicit downcast to .value
+	public var icon: NSImage {
+		return _icon.value
 	}
 	
 	/**
@@ -133,18 +134,18 @@ class ProcessInfo: Comparable {		// Comparable implies Equatable
 		value from the _text Future, meaning it will block while the text
 		is obtained.
 	 */
-	var text: NSAttributedString {
-		return _text	// note: implicit downcast to .value
+	public var text: NSAttributedString {
+		return _text.value
 	}
 
 //	--------------------------------------------------------------------------------
-//	private properties
+//MARK:	private properties
 	
 ///	This is the backing property for the (computed) icon property.
-	let _icon: Future <NSImage>
+	private let _icon: Future <NSImage>
 	
 ///	This is the backing property for the (computed) text property.
-	let _text: Future <NSAttributedString>
+	private let _text: Future <NSAttributedString>
 
 }	// end of ProcessInfo
 
@@ -155,22 +156,22 @@ class ProcessInfo: Comparable {		// Comparable implies Equatable
 */
 
 //	--------------------------------------------------------------------------------
-/*	Global operators for comparing ProcessInfos; must define < and ==
-	to conform to the Comparable and Equatable protocols.
+//MARK:	public operators for comparing ProcessInfos
+/*	must define < and == to conform to the Comparable and Equatable protocols.
 
-	Here we use the bundleName in Finder order, convenient for sorting.
+	Here I use the bundleName in Finder order, convenient for sorting.
 */
-func < (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Comparable
+public func < (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Comparable
 	return lhs.bundleName.localizedStandardCompare(rhs.bundleName) == NSComparisonResult.OrderedAscending
 }
 
-func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equatable and Comparable
+public func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equatable and Comparable
 	return lhs.bundleName.localizedStandardCompare(rhs.bundleName) == NSComparisonResult.OrderedSame
 }
 
 //	--------------------------------------------------------------------------------
-/*	These two operators allow appending a string to a NSMutableAttributedString.
-
+//MARK:	public operators for appending a string to a NSMutableAttributedString.
+/*
 	var someString = NSMutableAttributedString()
 	someString += "text" // will append "text" to the string
 	someString += ("text", [NSForegroundColorAttributeName : NSColor.redColor()]) // will append red "text"
@@ -180,30 +181,30 @@ func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equatable 
 	Notice a useful feature in the second case: passing a tuple to an operator.
 */
 
-@assignment func += (inout left: NSMutableAttributedString, right: String) {
+@assignment public func += (inout left: NSMutableAttributedString, right: String) {
 	left.appendAttributedString(NSAttributedString(string: right, attributes: [ : ]))
 }
 
-@assignment func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
+@assignment public func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
 	left.appendAttributedString(NSAttributedString(string: right.str, attributes: right.att))
 }
 
 //	Some preset style attributes for that last function. Note that these are Dictionaries of different
 //	types, but we don't care as the += will cast them to NSDictionary.
 
-let styleRED = [NSForegroundColorAttributeName : NSColor.redColor()]
-let styleBLUE = [NSForegroundColorAttributeName : NSColor.blueColor()]
-let styleBOLD12 = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)]
-let styleNORM12 = [NSFontAttributeName : NSFont.systemFontOfSize(12)]
+public let styleRED = [NSForegroundColorAttributeName : NSColor.redColor()]
+public let styleBLUE = [NSForegroundColorAttributeName : NSColor.blueColor()]
+public let styleBOLD12 = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)]
+public let styleNORM12 = [NSFontAttributeName : NSFont.systemFontOfSize(12)]
 
 //	--------------------------------------------------------------------------------
-//	Functions that get data from the Security framework.
+//MARK: functions that get data from the Security framework
 
 /**
 	This function returns an Optional NSDictionary containing code signature data for the
 	argument URL.
 */
-func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
+private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 	if let url = url {	// immediate unwrap if not nil, reuse the name
 		
 		//	SecStaticCodeCreateWithPath does an indirect return of SecStaticCode, so I need the
@@ -233,9 +234,9 @@ func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 	This function returns an Optional String containing the summary for the
 	parameter certificate.
  */
-func GetCertSummary(cert: AnyObject) -> String? {
+private func GetCertSummary(cert: AnyObject) -> CFString? {
 	
 	//	Note the brute-force cast which is equivalent to casting to id in ObjC.
-	return SecCertificateCopySubjectSummary(reinterpretCast(cert)).takeRetainedValue();
+	return SecCertificateCopySubjectSummary(reinterpretCast(cert)).takeRetainedValue()
 }
 

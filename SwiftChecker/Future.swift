@@ -18,6 +18,7 @@ import Foundation
 	NSProxy either - all ObjC objects passed to Swift have to subclass NSObject.
 */
 
+//MARK: public class Future
 //	================================================================================
 /**
 	This generic class implements a simple Future.
@@ -32,37 +33,35 @@ import Foundation
 		var aFuture = Future...
 
 	You can add aFuture to collections or pass it around. When you need the result,
-	use either
+	use
 		aFuture.value
-	or
-		aFuture as someType		(can also be an implicit cast)
-	both will block if the Future hasn't resolved (happened) yet.
+	this will block if the Future hasn't resolved (happened) yet.
 
 	You can also test if the Future has resolved with aFuture.resolved; this will not block.
 
 	Notice that someType can be an optional, and then the closure/value may return nil to
 	signal an error condition or timeout.
 */
-class Future <T> {
+public class Future <T> {
 	
 //	--------------------------------------------------------------------------------
-//	initializers
+//MARK:	initializers
 	
 	///	This initializer creates and starts a Future using the argument closure.
-	init(_ work: () -> T) {
+	public init(_ work: () -> T) {
 		_run(work)
 	}
 	
 	///	This initializer creates and starts a Future using the argument expression.
-	init(_ work: @auto_closure ()-> T) {
+	public init(_ work: @auto_closure ()-> T) {
 		_run(work)
 	}
 	
 //	--------------------------------------------------------------------------------
-//	public properties
+//MARK:	public properties
 
 	///	This computed property returns the actual Future value, and blocks while it is being resolved.
-	var value: T {
+	public var value: T {
 		_lock.lock()
 		while _result.isEmpty {
 			_lock.wait()
@@ -73,7 +72,7 @@ class Future <T> {
 	}
 	
 	///	This computed property tests if the Future has been resolved.
-	var resolved: Bool {
+	public var resolved: Bool {
 		_lock.lock()
 		let resolved = !_result.isEmpty
 		_lock.unlock()
@@ -81,11 +80,11 @@ class Future <T> {
 	}
 	
 //	--------------------------------------------------------------------------------
-//	private properties
+//MARK:	private properties
 	
 	///	This property  uses a combination mutex/lock to guarantee
 	///	asynchronous access to the _result property.
-	let _lock = NSCondition()
+	private let _lock = NSCondition()
 	
 	/**	This property contains either an empty array or an array
 		with a single member (the result) when the Future has resolved.
@@ -108,21 +107,15 @@ class Future <T> {
 	var _result: [ T ] = [ ]
 	
 //	--------------------------------------------------------------------------------
-//	private functions and methods
+//MARK:	private functions and methods
 	
-	///	This conversion function allows the Future to be downcast to its value.
-	///	Note that both @conversion and __conversion() are currently unsupported!
-	@conversion func __conversion() -> T {
-		return value	// this will block until the Future is resolved
-	}
-
 	/**	This function is called by the initializers, avoiding code duplication.
 	
 		The argument closure is performed asynchronously and its value is captured.
 		Access to _result is guarded by the mutex and other threads waiting are
 		unblocked by the broadcast() call.
 	 */
-	func _run(work: () -> T) {
+	private func _run(work: () -> T) {
 		PerformAsync {
 			let value = work()
 			self._lock.lock()
@@ -134,6 +127,7 @@ class Future <T> {
 	
 }	// end of Future
 
+// MARK: public class FutureDebug
 //	================================================================================
 /**	This Future subclass is useful for debugging and benchmarking.
 
@@ -147,15 +141,41 @@ class Future <T> {
 	where the label string can also be nil.
 
 */
-class FutureDebug <T> : Future <T> {
+public class FutureDebug <T> : Future <T> {
+	
+//	--------------------------------------------------------------------------------
+//MARK:	initializers
+	
+	///	This initializer creates and starts a Future using the last argument closure.
+	public init(_ str: String?, _ work: () -> T) {
+		_time = TimeStamp(str)
+		super.init(work)
+	}
+	
+	///	This initializer creates and starts a Future using the last argument expression.
+	public init(_ str: String?, _ work: @auto_closure ()-> T) {
+		_time = TimeStamp(str)
+		super.init(work)
+	}
+	
+//	--------------------------------------------------------------------------------
+//MARK:	public properties
+	
+	///	This computed property will return the optional label.
+	public var label: String? {
+		return _time.label
+	}
+	
+//	--------------------------------------------------------------------------------
+//MARK:	private properties
 	
 	///	This internal property is used to measure the resolution time and contain the
 	///	optional label.
-	var _time: TimeStamp
+	private var _time: TimeStamp
 	
 	///	This computed property will return the resolution time in seconds.
 	///	Note that it will block until the Future has resolved.
-	var seconds: Double {
+	private var seconds: Double {
 		_lock.lock()
 		while _result.isEmpty {
 			_lock.wait()
@@ -164,15 +184,13 @@ class FutureDebug <T> : Future <T> {
 		_lock.unlock()
 		return e
 	}
-	
-	///	This computed property will return the optional label.
-	var label: String? {
-		return _time.label
-	}
+
+//	--------------------------------------------------------------------------------
+//MARK:	private functions and methods
 	
 	///	This overrides the actual Future execution to measure the resolution time.
 	///	As a convenience, it will print it out if a label has been assigned.
-	override func _run(work: () -> T) {
+	private override func _run(work: () -> T) {
 		PerformAsync {
 			let value = work()
 			self._lock.lock()
@@ -190,21 +208,10 @@ class FutureDebug <T> : Future <T> {
 		}
 	}
 	
-	///	This initializer creates and starts a Future using the last argument closure.
-	init(_ str: String?, _ work: () -> T) {
-		_time = TimeStamp(str)
-		super.init(work)
-	}
-	
-	///	This initializer creates and starts a Future using the last argument expression.
-	init(_ str: String?, _ work: @auto_closure ()-> T) {
-		_time = TimeStamp(str)
-		super.init(work)
-	}
-
 }	// end of FutureDebug
 
 //	--------------------------------------------------------------------------------
+//MARK: convenience debugging functions
 /**
 	The following convenience functions are for debugging only. For these to work, be sure to
 	set "-D DEBUG" in "Other Swift Flags" for the Debug build in the Xcode project!
@@ -217,35 +224,37 @@ class FutureDebug <T> : Future <T> {
 */
 
 #if DEBUG
-let printq = {	// global serial dispatch queue for print functions
+private let _printq = {	// global serial dispatch queue for print functions
 		dispatch_queue_create("printq", DISPATCH_QUEUE_SERIAL)
 	}()
 #endif
 
-func PrintLN <T> (object: @auto_closure () -> T) {
+public func PrintLN <T> (object: @auto_closure () -> T) {
 #if DEBUG
-	dispatch_sync(printq) {
+	dispatch_sync(_printq) {
 		println(object())
 	}
 #endif
 }
 
-func Print <T> (object: @auto_closure () -> T) {
+public func Print <T> (object: @auto_closure () -> T) {
 #if DEBUG
-	dispatch_sync(printq) {
+	dispatch_sync(_printq) {
 		print(object())
 	}
 #endif
 }
 
-func PrintLN() {
+public func PrintLN() {
 #if DEBUG
-	dispatch_sync(printq) {
+	dispatch_sync(_printq) {
 		println()
 	}
 #endif
 }
 
+//	--------------------------------------------------------------------------------
+//MARK: convenience asynchronous functions
 /**
 	Accepts a closure to be performed on the next iteration of the main run loop;
 	basically an equivalent of performSelectorOnMainThread: but with no object and
@@ -255,12 +264,12 @@ func PrintLN() {
 	that may cut in front of other events waiting to be handled in the run loop.
 	(Thanks to Kyle Sluder for the explanation.)
 */
-func PerformOnMain(work: () -> Void) {
+public func PerformOnMain(work: () -> Void) {
 	CFRunLoopPerformBlock(NSRunLoop.mainRunLoop().getCFRunLoop(), kCFRunLoopCommonModes, work)
 }
 
 ///	Accepts a closure to be performed asynchronously.
-func PerformAsync(work: () -> Void) {
+public func PerformAsync(work: () -> Void) {
 	//	Comment out the following line and substitute work() to check how the app would run
 	//	without Futures/GCD.
 	dispatch_async(dispatch_get_global_queue(0, 0), work)
