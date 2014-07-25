@@ -56,7 +56,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 			//	Add the architecture as a bonus value
 			switch app.executableArchitecture {
 			case NSBundleExecutableArchitectureI386:
-				result += " (32-bit)"
+				result += (" (32-bit)", styleRED)		// red text: most apps should be 64 by now
 			case NSBundleExecutableArchitectureX86_64:
 				result += " (64-bit)"
 			default:
@@ -100,7 +100,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 							return "<?>"	// GetCertSummary() returned nil
 						}
 						//	Concatenating with commas is easy now
-						result += join(", ",summaries)
+						result += "by " + join(", ",summaries)
 					}
 				}
 				
@@ -108,7 +108,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 					result += "without certificates"
 				}
 			} else {	// code signature missing
-				result += ("unsigned", styleRED)	// red text to stand out
+				result += ("unsigned", styleRED)	// red text to stand out; most processes should be signed
 			}
 			return result
 		}
@@ -125,7 +125,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 		value from the _icon Future, meaning it will block while the icon
 		is obtained.
 	 */
-	public var icon: NSImage {
+	var icon: NSImage {
 		return _icon.value
 	}
 	
@@ -134,7 +134,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 		value from the _text Future, meaning it will block while the text
 		is obtained.
 	 */
-	public var text: NSAttributedString {
+	var text: NSAttributedString {
 		return _text.value
 	}
 
@@ -214,7 +214,7 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 		var err = SecStaticCodeCreateWithPath(url, SecCSFlags(kSecCSDefaultFlags), &code)
 		
 		//	If the call succeeds, I immediately convert it to a managed object
-		if err == 0 && code {
+		if err == OSStatus(noErr) && code {
 			let code = code!.takeRetainedValue()
 
 			//	Same as above, the call will return an Unmanaged object...

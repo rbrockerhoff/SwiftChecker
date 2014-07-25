@@ -17,12 +17,6 @@ import Cocoa
 private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate {
 	
 //	--------------------------------------------------------------------------------
-//MARK: initializers
-	private init() {
-		super.init()
-	}
-	
-//	--------------------------------------------------------------------------------
 //MARK: properties and outlets
 	
 /**
@@ -35,6 +29,10 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 	In previous versions this was keyed by NSRunningApplication.processIdentifier (pid) but it turns
 	out that applications can be quit automatically (losing their pid) and then restart and be assigned
 	a new one, messing up the display.
+	
+	Using NSRunningApplication as the dictionary key leverages the docs recommendation:
+	"Do not rely on pid for comparing processes, instead compare NSRunningApplication
+	instances using isEqual:".
  */
 	private var procdict: [ NSRunningApplication : ProcessInfo ] = [ : ]
 	
@@ -210,7 +208,7 @@ private var KVOContext: Int = 0
 public extension Dictionary {
 	
 	///	Merges a sequence of (key,value) tuples into a Dictionary.
-	public mutating func merge <S: Sequence where S.GeneratorType.Element == Element> (seq: S) {
+	mutating func merge <S: Sequence where S.GeneratorType.Element == Element> (seq: S) {
 		var gen = seq.generate()
 		while let (key: KeyType, value: ValueType) = gen.next() {
 			self[key] = value
@@ -223,7 +221,7 @@ public extension Dictionary {
 		or return a (key,value) tuple to insert or change an item. In that case, value can be
 		nil to remove the item for that key.
 	*/
-	public mutating func merge <T, S: Sequence where S.GeneratorType.Element == T> (seq: S, filter: (T) -> (KeyType, ValueType?)?) {
+	mutating func merge <T, S: Sequence where S.GeneratorType.Element == T> (seq: S, filter: (T) -> (KeyType, ValueType?)?) {
 		var gen = seq.generate()
 		while let t: T = gen.next() {
 			if let (key: KeyType, value: ValueType?) = filter(t) {

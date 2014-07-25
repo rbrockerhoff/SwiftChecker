@@ -32,8 +32,7 @@ import Foundation
 	side on the examples above could usually just be written as
 		var aFuture = Future...
 
-	You can add aFuture to collections or pass it around. When you need the result,
-	use
+	You can add aFuture to collections or pass it around. When you need the result, use
 		aFuture.value
 	this will block if the Future hasn't resolved (happened) yet.
 

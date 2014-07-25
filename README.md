@@ -19,8 +19,14 @@ The Xcode project itself is largely unchanged from the default setup and options
 - The test target and source file are there, but I didn't do anything with them.
 - Some build options have been set, most importantly "treat warnings as errors", and "-D DEBUG" in "Other Swift Flags".
 
+Known issues:
+- Crashed on me once when an app quit automatically - haven't been able to reproduce this yet.
+- The BenchmarkParallel() functions take way too long; I'm still testing this.
+
 Recent changes:
 - Fixed a bug when applications were automatically quit.
+- Small cosmetic fixes.
+- __conversion() taken out.
 - Some more refactoring for less code.
 - Updated for beta 4. Everything marked public or private now!
 - For Debug builds various timing information is printed to the console.
