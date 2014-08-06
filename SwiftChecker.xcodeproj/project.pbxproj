@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		741C73EE1976F45E004AD6AA /* Timing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 741C73ED1976F45E004AD6AA /* Timing.swift */; };
+		744A95751990074000883027 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748A19411122006C9A3B /* AppDelegate.swift */; };
+		744A95761990074200883027 /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C274A819492CD9006C9A3B /* Future.swift */; };
+		744A95771990074500883027 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7481175D1978A20800D93AA5 /* ProcessInfo.swift */; };
+		744A95781990074700883027 /* Timing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 741C73ED1976F45E004AD6AA /* Timing.swift */; };
 		747A454E194A3888005359A3 /* SwiftChecker.xib in Resources */ = {isa = PBXBuildFile; fileRef = 747A454D194A3888005359A3 /* SwiftChecker.xib */; };
-		7481175E1978A20800D93AA5 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7481175D1978A20800D93AA5 /* ProcessInfo.swift */; };
 		74BA4469196091E600F94DE7 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 74BA4467196090C800F94DE7 /* Credits.rtf */; };
 		74C2748719411122006C9A3B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748619411122006C9A3B /* main.swift */; };
-		74C2748B19411122006C9A3B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2748A19411122006C9A3B /* AppDelegate.swift */; };
 		74C2749C19411122006C9A3B /* SwiftCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C2749B19411122006C9A3B /* SwiftCheckerTests.swift */; };
-		74C274A919492CD9006C9A3B /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C274A819492CD9006C9A3B /* Future.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -225,11 +225,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7481175E1978A20800D93AA5 /* ProcessInfo.swift in Sources */,
-				741C73EE1976F45E004AD6AA /* Timing.swift in Sources */,
-				74C2748B19411122006C9A3B /* AppDelegate.swift in Sources */,
-				74C274A919492CD9006C9A3B /* Future.swift in Sources */,
+				744A95761990074200883027 /* Future.swift in Sources */,
+				744A95781990074700883027 /* Timing.swift in Sources */,
+				744A95751990074000883027 /* AppDelegate.swift in Sources */,
 				74C2748719411122006C9A3B /* main.swift in Sources */,
+				744A95771990074500883027 /* ProcessInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,6 +266,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -280,8 +281,10 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -309,6 +312,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -318,8 +322,10 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;

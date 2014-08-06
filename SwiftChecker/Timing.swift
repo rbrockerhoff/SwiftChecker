@@ -102,7 +102,7 @@ public struct TimeStamp : Printable {
 	///	Returns a printable description of the TimeStamp, useful for debugging.
 	public var description: String {
 		var prt = TimeStamp._format(absolute, time)
-		if label {
+		if label != nil {
 			prt = "\(label!): " + prt
 		}
 		return prt
@@ -113,7 +113,7 @@ public struct TimeStamp : Printable {
 	public var age: String {
 		if let delta = elapsed {
 			var prt = "\(TimeStamp._format(false, delta)) elapsed"
-			if label {
+			if label != nil {
 				prt = "\(label!): " + prt
 			}
 			return prt
@@ -211,35 +211,35 @@ public typealias BenchClosure = () -> Any?
 	relative TimeStamp containing the average execution time for the closure.
 	This makes no sense if the repetition count is < 1.
 */
-public func BenchmarkSerial(comment: String?, times: Int, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkSerial(comment: String?, times: UInt, work: BenchClosure) -> TimeStamp! {
 	if (times < 1) {
-		return nil		// zero or negative repetitions, boom!
+		return nil		// zero repetitions, boom!
 	}
 	let total = _BenchmarkSerial(times, work)
-	return TimeStamp(false, total - _overheadSerial, comment)
+	return TimeStamp(false, total, comment)
 }
 
 /// Same function with no label.
-public func BenchmarkSerial(times: Int, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkSerial(times: UInt, work: BenchClosure) -> TimeStamp! {
 	return BenchmarkSerial(nil, times, work)
 }
 
 /**
-	This function accepts an optional label, a repetition count (which should be at
-	least 100 to be useful), and a closure to be benchmarked in parallel; it produces a
+	This function accepts an optional label, a repetition count (which should be a multiple of 10,
+	and at least 100 to be useful), and a closure to be benchmarked in parallel; it produces a
 	relative TimeStamp containing the average execution time for the closure.
 	This makes no sense if the repetition count is < 1.
 */
-public func BenchmarkParallel(comment: String?, times: Int, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkParallel(comment: String?, times: UInt, work: BenchClosure) -> TimeStamp! {
 	if (times < 1) {
-		return nil		// zero or negative repetitions, boom!
+		return nil		// zero, boom!
 	}
 	let total = _BenchmarkParallel(times, work)
-	return TimeStamp(false, total - _overheadParallel, comment)
+	return TimeStamp(false, total, comment)
 }
 
 /// Same function with no label.
-public func BenchmarkParallel(times: Int, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkParallel(times: UInt, work: BenchClosure) -> TimeStamp! {
 	return BenchmarkParallel(nil, times, work)
 }
 
@@ -264,8 +264,6 @@ public func SecsToStr(seconds: Double) -> String {
 ///	This utility function reports internal overhead values.
 public func ReportTimingData() {
 	PrintLN("Timing quantum = \(TimeStamp._format(false,1))")
-	PrintLN("Parallel overhead = \(TimeStamp._format(false,_overheadParallel))")
-	PrintLN("Serial overhead = \(TimeStamp._format(false,_overheadSerial))")
 	let overhead = BenchmarkSerial(1000) {
 		return TimeStamp()
 	}
@@ -276,9 +274,9 @@ public func ReportTimingData() {
 //MARK:	private functions and values for benchmarking
 
 ///	This private function does the actual serial measurement.
-private func _BenchmarkSerial(times: Int, work: BenchClosure) -> Int64 {
+private func _BenchmarkSerial(times: UInt, work: BenchClosure) -> Int64 {
 	var total: Int64 = 0
-	for var i = 0; i < times; i++ {
+	for _ in 1...times {
 		let before = Int64(mach_absolute_time())
 		let dummy = work()
 		total += Int64(mach_absolute_time()) - before
@@ -286,49 +284,29 @@ private func _BenchmarkSerial(times: Int, work: BenchClosure) -> Int64 {
 	return total / Int64(times)
 }
 
+///	private dispatch queue
+private let _benchq = {	// global concurrent dispatch queue for BenchmarkParallel
+	dispatch_queue_create("benchq", DISPATCH_QUEUE_CONCURRENT)
+	}()
+
+///	the stride count multiplier
+private let _repeat: UInt = 10
+
 ///	This private function does the actual parallel measurement.
-private func _BenchmarkParallel(times: Int, work: BenchClosure) -> Int64 {
+private func _BenchmarkParallel(times: UInt, work: BenchClosure) -> Int64 {
 	let lock = NSCondition()
-	var unresolved = times
 	var total: Int64 = 0
-	for var i = 0; i < times; i++ {
-		dispatch_async(dispatch_get_global_queue(0, 0)) {
-			let before = Int64(mach_absolute_time())
+	let nt = min(1,times/_repeat)
+	dispatch_apply(nt, _benchq) { (_) in
+		let before = Int64(mach_absolute_time())
+		for _ in 1..._repeat {
 			let dummy = work()
-			let elapsed = Int64(mach_absolute_time()) - before
-			lock.lock()
-			total += elapsed
-			unresolved -= 1
-			if unresolved == 0 {
-				lock.broadcast()
-			}
-			lock.unlock()
 		}
+		let elapsed = Int64(mach_absolute_time()) - before
+		lock.lock()
+		total += elapsed
+		lock.unlock()
 	}
-	lock.lock()
-	while unresolved > 0 {
-		lock.wait()
-	}
-	lock.unlock()
-	return total / Int64(times)
+	return total / Int64(nt * _repeat)
 }
-
-///	This internal value is used to estimate the extraneous timing overhead for
-///	the Benchmark function. Don't mess with it. See Technical Q&A QA1398 for details.
-private let _overheadSerial: Int64 = {
-	var times: Int = 10000		// seems a good value and wastes only a few ms
-	return _BenchmarkSerial(times) {
-			return mach_absolute_time()
-		}
-	}()
-
-///	This internal value is used to estimate the extraneous timing overhead for
-///	the BenchmarkParallel function. Don't mess with it. See Technical Q&A QA1398 for details.
-private let _overheadParallel: Int64 = {
-	var times: Int = 1000		// seems a good value and wastes only a few ms
-	return _BenchmarkParallel(times) {
-			return mach_absolute_time()
-		}
-	}()
-
 

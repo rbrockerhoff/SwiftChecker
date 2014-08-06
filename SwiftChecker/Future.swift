@@ -7,7 +7,7 @@
 
 import Foundation
 
-/*	Functions and two Future classes to do easy asynchronous stuff.
+/**	Functions and two Future classes to do easy asynchronous stuff.
 
 	A Future is basically a way to reference a result that may take some time to
 	obtain; while the final value is not 'resolved', you can add it to collections
@@ -20,7 +20,7 @@ import Foundation
 
 //MARK: public class Future
 //	================================================================================
-/**
+/*
 	This generic class implements a simple Future.
 
 	Use it like this:
@@ -42,7 +42,7 @@ import Foundation
 	signal an error condition or timeout.
 */
 public class Future <T> {
-	
+
 //	--------------------------------------------------------------------------------
 //MARK:	initializers
 	
@@ -52,7 +52,7 @@ public class Future <T> {
 	}
 	
 	///	This initializer creates and starts a Future using the argument expression.
-	public init(_ work: @auto_closure ()-> T) {
+	public init(_ work: @autoclosure ()-> T) {
 		_run(work)
 	}
 	
@@ -101,7 +101,6 @@ public class Future <T> {
 		
 		So, implementing it as an array of T obviates the necessity of having an additional Bool to signal
 		whether the Future has resolved.
-		NOTE: new in Xcode 6.0b3 : syntax is now [ T ] instead of T[ ].
 	 */
 	var _result: [ T ] = [ ]
 	
@@ -152,7 +151,7 @@ public class FutureDebug <T> : Future <T> {
 	}
 	
 	///	This initializer creates and starts a Future using the last argument expression.
-	public init(_ str: String?, _ work: @auto_closure ()-> T) {
+	public init(_ str: String?, _ work: @autoclosure ()-> T) {
 		_time = TimeStamp(str)
 		super.init(work)
 	}
@@ -197,7 +196,7 @@ public class FutureDebug <T> : Future <T> {
 			//	Freeze the TimeStamp to get the execution time and print it out if
 			//	its label is present.
 			let str = self._time.freeze()
-			if self.label {
+			if self.label != nil {
 				PrintLN(str)
 			}
 			
@@ -228,7 +227,7 @@ private let _printq = {	// global serial dispatch queue for print functions
 	}()
 #endif
 
-public func PrintLN <T> (object: @auto_closure () -> T) {
+public func PrintLN <T> (object: @autoclosure () -> T) {
 #if DEBUG
 	dispatch_sync(_printq) {
 		println(object())
@@ -236,7 +235,7 @@ public func PrintLN <T> (object: @auto_closure () -> T) {
 #endif
 }
 
-public func Print <T> (object: @auto_closure () -> T) {
+public func Print <T> (object: @autoclosure () -> T) {
 #if DEBUG
 	dispatch_sync(_printq) {
 		print(object())
@@ -267,11 +266,15 @@ public func PerformOnMain(work: () -> Void) {
 	CFRunLoopPerformBlock(NSRunLoop.mainRunLoop().getCFRunLoop(), kCFRunLoopCommonModes, work)
 }
 
+///	private dispatch queue
+private let _asyncq = {	// global concurrent dispatch queue for PerformAsync
+	dispatch_queue_create("asyncq", DISPATCH_QUEUE_CONCURRENT)
+	}()
+
 ///	Accepts a closure to be performed asynchronously.
 public func PerformAsync(work: () -> Void) {
 	//	Comment out the following line and substitute work() to check how the app would run
 	//	without Futures/GCD.
-	dispatch_async(dispatch_get_global_queue(0, 0), work)
+	dispatch_async(_asyncq, work)
 }
-
 

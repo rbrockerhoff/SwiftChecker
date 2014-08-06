@@ -30,7 +30,7 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 	out that applications can be quit automatically (losing their pid) and then restart and be assigned
 	a new one, messing up the display.
 	
-	Using NSRunningApplication as the dictionary key leverages the docs recommendation:
+	Using NSRunningApplication as the dictionary key leverages the docs' recommendation:
 	"Do not rely on pid for comparing processes, instead compare NSRunningApplication
 	instances using isEqual:".
  */
@@ -85,26 +85,21 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 //MARK: observers
 
 ///	This KVO observer is called whenever the list of running applications changes.
-	private override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [ NSObject : AnyObject]!, context: UnsafePointer<()>) {
-		
+	private override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [NSObject : AnyObject]!, context: UnsafeMutablePointer<()>) {
 		var apps: NSArray? = nil
 
-		//	Need the change kind as a number
-		switch change[NSKeyValueChangeKindKey!] as NSNumber {
-			
-		//	...to match with raw values from the NSKeyValueChange enum. Least stressful way to do this?
-		case NSKeyValueChange.Insertion.toRaw():
-			
-			//	Get the inserted apps (usually only one, but you never know
-			apps = change[NSKeyValueChangeNewKey!] as? NSArray
-
-		case NSKeyValueChange.Removal.toRaw():
-			
-			//	Get the removed apps (usually only one, but you never know
-			apps = change[NSKeyValueChangeOldKey!] as? NSArray
-
-		default:
-			return	// nothing to refresh; should never happen, but...
+		//	Need the change kind as a number, then as the proper enum type; might there be an easier way?
+		if let kind = NSKeyValueChange.fromRaw(change[NSKeyValueChangeKindKey] as NSNumber) {
+			switch kind {
+			case .Insertion:
+				//	Get the inserted apps (usually only one, but you never know
+				apps = change[NSKeyValueChangeNewKey] as? NSArray
+			case .Removal:
+				//	Get the removed apps (usually only one, but you never know
+				apps = change[NSKeyValueChangeOldKey] as? NSArray
+			default:
+				return	// nothing to refresh; should never happen, but...
+			}
 		}
 	
 		// update the table with the changes (if any)
@@ -141,16 +136,18 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 	}
 	
 	///	This NSApplicationDelegate method quits the app when the window is closed.
-	private func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication!)->Bool {
+	private func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication!) -> Bool {
 		return true
 	}
 	
 	///	This NSApplicationDelegate method is called just before termination.
 	private func applicationWillTerminate(aNotification: NSNotification!) {
 		PrintLN("willTerminate; \(startup.age) after startup")
+		
+		// remove the observer we added in applicationWillFinishLaunching
 		NSWorkspace.sharedWorkspace().removeObserver(self, forKeyPath: "runningApplications")
 	}
-	
+
 //	--------------------------------------------------------------------------------
 //MARK: private functions
 
@@ -158,7 +155,7 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 	private func _update (apps: NSArray?) {
 		
 		///	Proceed if we really have an Array of applications - may be nil.
-		if let apps = apps as? Array<NSRunningApplication> {
+		if let apps =  apps as? Array<NSRunningApplication>  {
 			var time = TimeStamp("Table refresh")
 			
 			/// Use one of the Dictionary extensions to merge the changes into procdict.
@@ -208,9 +205,9 @@ private var KVOContext: Int = 0
 public extension Dictionary {
 	
 	///	Merges a sequence of (key,value) tuples into a Dictionary.
-	mutating func merge <S: Sequence where S.GeneratorType.Element == Element> (seq: S) {
+	mutating func merge <S: SequenceType where S.Generator.Element == Element> (seq: S) {
 		var gen = seq.generate()
-		while let (key: KeyType, value: ValueType) = gen.next() {
+		while let (key: Key, value: Value) = gen.next() {
 			self[key] = value
 		}
 	}
@@ -221,10 +218,10 @@ public extension Dictionary {
 		or return a (key,value) tuple to insert or change an item. In that case, value can be
 		nil to remove the item for that key.
 	*/
-	mutating func merge <T, S: Sequence where S.GeneratorType.Element == T> (seq: S, filter: (T) -> (KeyType, ValueType?)?) {
+	mutating func merge <T, S: SequenceType where S.Generator.Element == T> (seq: S, filter: (T) -> (Key, Value?)?) {
 		var gen = seq.generate()
 		while let t: T = gen.next() {
-			if let (key: KeyType, value: ValueType?) = filter(t) {
+			if let (key: Key, value: Value?) = filter(t) {
 				self[key] = value
 			}
 		}

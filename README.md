@@ -11,7 +11,7 @@ Updating the table might potentially take some time if the system is very busy, 
 
 The Timing.swift file contains timing and benchmarking utilities which might come handy in other projects. The classes and functions in Future.swift can also be used elsewhere.
 
-The project should build and run with no errors, warnings or crashes on OS X 10.10b4 and Xcode 6.0b4. In theory if you set the target version to 10.9 it should work there (but it just crashed on beta 3, haven't tried on beta 4). If you set the SDK to 10.9 too you'll get many compiler errors, so don't do that.
+The project should build and run with no errors, warnings or crashes on OS X 10.10b5 and Xcode 6.0b5. In theory if you set the target version to 10.9 it should work there (but it just crashed on beta 3, haven't tried after that). If you set the SDK to 10.9 too you'll get many compiler errors, so don't do that.
 
 There are copious comments that, hopefully, explain some of the design decisions and workarounds where necessary. I'm trying out various comment styles and placements; along with the new whitespace conventions, this will hopefully converge to a new and consistent coding style for my Swift source code.
 
@@ -21,14 +21,18 @@ The Xcode project itself is largely unchanged from the default setup and options
 
 Known issues:
 - Crashed on me once when an app quit automatically - haven't been able to reproduce this yet.
-- The BenchmarkParallel() functions take way too long; I'm still testing this.
+- The BenchmarkParallel() functions take way too long; I'm still testing the benchmarks.
+- Must adopt reStructuredText conventions for params and return values.
 
 Recent changes:
+- Updated for beta 5 - type changes, comparing to nil, etc. Simpler code, too.
+- Still trying to find the correct cast to SecCertificate.
+- Futures now use a custom queue to avoid the 64-thread limit on the main queues.
+- Still messing around with the benchmarking functions.
 - Fixed a bug when applications were automatically quit.
 - Small cosmetic fixes.
 - __conversion() taken out.
 - Some more refactoring for less code.
-- Updated for beta 4. Everything marked public or private now!
 - For Debug builds various timing information is printed to the console.
 - General source and comments reorganization, hopefully for better readability.
 - The ProcessInfo class has been split off into its own source file.

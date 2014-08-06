@@ -28,7 +28,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 	*/
 	public init(_ app: NSRunningApplication) {
 		
-		//	Precalculate some values we'll need later on
+		//	Fetch some values I'll need later on
 		let name = app.localizedName
 		let url = app.bundleURL
 		let fpath = url.path.stringByDeletingLastPathComponent
@@ -81,35 +81,30 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 					}
 				}
 				
-				//	The certificates array may be empty or missing entirely.
 				result += "signed "
-				var haveCert = false
-				
-				//	Unfortunately, autoclosure of the right-hand side of && and || means you cannot do things like
-				//	if let a = b && a.f() { … }. Hence the Bool flag.
-				if let certificates = signature["certificates"] as? NSArray {
-					if certificates.count > 0 {
-						haveCert = true
-						
-						//	This gets the summaries for all certificates.
-						let summaries = (certificates as Array).map {
-							(cert) -> String in
-							if let summary = GetCertSummary(cert) {
-								return String(summary)	// CFString has to be converted
-							}
-							return "<?>"	// GetCertSummary() returned nil
-						}
-						//	Concatenating with commas is easy now
-						result += "by " + join(", ",summaries)
+
+				//	The certificates array may be empty or missing entirely.
+				let certificates = signature["certificates"] as? Array<CFTypeRef>
+
+				//	Using optional chaining here checks for both empty or missing.
+				if  certificates?.count > 0 {
+
+					//	This gets the summaries for all certificates.
+					let summaries = certificates!.map { (cert) -> String in
+						return GetCertSummary(cert) ?? "<?>"	// GetCertSummary() may return nil
 					}
-				}
-				
-				if (!haveCert) {	// signed but no certificates
+
+					//	Concatenating with commas is easy now
+					result += "by " + join(", ",summaries)
+
+				} else {	// signed but no certificates
 					result += "without certificates"
 				}
+
 			} else {	// code signature missing
 				result += ("unsigned", styleRED)	// red text to stand out; most processes should be signed
 			}
+
 			return result
 		}
 	}
@@ -181,11 +176,11 @@ public func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equ
 	Notice a useful feature in the second case: passing a tuple to an operator.
 */
 
-@assignment public func += (inout left: NSMutableAttributedString, right: String) {
+ public func += (inout left: NSMutableAttributedString, right: String) {
 	left.appendAttributedString(NSAttributedString(string: right, attributes: [ : ]))
 }
 
-@assignment public func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
+ public func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
 	left.appendAttributedString(NSAttributedString(string: right.str, attributes: right.att))
 }
 
@@ -210,11 +205,10 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 		//	SecStaticCodeCreateWithPath does an indirect return of SecStaticCode, so I need the
 		//	Unmanaged<> container.
 		var code: Unmanaged<SecStaticCode>? = nil
-		//	See the odd SecCSFlags cast? This is because the header hasn't been annotated yet.
 		var err = SecStaticCodeCreateWithPath(url, SecCSFlags(kSecCSDefaultFlags), &code)
 		
 		//	If the call succeeds, I immediately convert it to a managed object
-		if err == OSStatus(noErr) && code {
+		if err == OSStatus(noErr) && code != nil {
 			let code = code!.takeRetainedValue()
 
 			//	Same as above, the call will return an Unmanaged object...
@@ -222,7 +216,7 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 			err = SecCodeCopySigningInformation(code, SecCSFlags(kSecCSSigningInformation), &dict)
 			
 			//	and if it succeeds, we return a managed object.
-			if err == OSStatus(noErr) && dict {
+			if err == OSStatus(noErr) && dict != nil {
 				return dict!.takeRetainedValue()
 			}
 		}
@@ -234,9 +228,14 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 	This function returns an Optional String containing the summary for the
 	parameter certificate.
  */
-private func GetCertSummary(cert: AnyObject) -> CFString? {
-	
-	//	Note the brute-force cast which is equivalent to casting to id in ObjC.
-	return SecCertificateCopySubjectSummary(reinterpretCast(cert)).takeRetainedValue()
+private func GetCertSummary(cert: CFTypeRef) -> String? {
+	// I need to convert the CFTypeRef to a SecCertificate:
+	//	let scr = unsafeBitCast(cert, SecCertificate.self)
+	// but this is the currently safest recommended way:
+	let opaque = Unmanaged.passRetained(cert).toOpaque()
+	let scr: SecCertificate = Unmanaged.fromOpaque(opaque).takeRetainedValue()
+
+	// the value returned is cast to NSString? because you can't go from CFString to String directly.
+	return SecCertificateCopySubjectSummary(scr).takeRetainedValue() as NSString?
 }
 

@@ -13,3 +13,4 @@ let startup = TimeStamp()
 PrintLN("Started at \(startup)")
 
 NSApplicationMain(C_ARGC, C_ARGV)
+
