@@ -31,7 +31,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 		//	Fetch some values I'll need later on
 		let name = app.localizedName
 		let url = app.bundleURL
-		let fpath = url.path.stringByDeletingLastPathComponent
+		let fpath = url.path!.stringByDeletingLastPathComponent
 		
 		bundleName = name
 		
@@ -176,21 +176,25 @@ public func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equ
 	Notice a useful feature in the second case: passing a tuple to an operator.
 */
 
+/// The right-hand String is appended to the left-hand NSMutableString.
  public func += (inout left: NSMutableAttributedString, right: String) {
-	left.appendAttributedString(NSAttributedString(string: right, attributes: [ : ]))
+	left.appendAttributedString(NSAttributedString(string: right, attributes: NSDictionary()))
 }
 
- public func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
+/// The right-hand tuple contains a String with an attribute NSDictionary to append
+/// to the left-hand NSMutableString.
+
+public func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
 	left.appendAttributedString(NSAttributedString(string: right.str, attributes: right.att))
 }
 
 //	Some preset style attributes for that last function. Note that these are Dictionaries of different
-//	types, but we don't care as the += will cast them to NSDictionary.
+//	types, so we have to cast them to NSDictionary. (beta 6 no longer does this automatically)
 
-public let styleRED = [NSForegroundColorAttributeName : NSColor.redColor()]
-public let styleBLUE = [NSForegroundColorAttributeName : NSColor.blueColor()]
-public let styleBOLD12 = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)]
-public let styleNORM12 = [NSFontAttributeName : NSFont.systemFontOfSize(12)]
+public let styleRED = [NSForegroundColorAttributeName : NSColor.redColor()] as NSDictionary
+public let styleBLUE = [NSForegroundColorAttributeName : NSColor.blueColor()] as NSDictionary
+public let styleBOLD12 = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)] as NSDictionary
+public let styleNORM12 = [NSFontAttributeName : NSFont.systemFontOfSize(12)] as NSDictionary
 
 //	--------------------------------------------------------------------------------
 //MARK: functions that get data from the Security framework

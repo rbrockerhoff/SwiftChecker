@@ -11,7 +11,7 @@ Updating the table might potentially take some time if the system is very busy, 
 
 The Timing.swift file contains timing and benchmarking utilities which might come handy in other projects. The classes and functions in Future.swift can also be used elsewhere.
 
-The project should build and run with no errors, warnings or crashes on OS X 10.10b5 and Xcode 6.0b5. In theory if you set the target version to 10.9 it should work there (but it just crashed on beta 3, haven't tried after that). If you set the SDK to 10.9 too you'll get many compiler errors, so don't do that.
+The project should build and run with no errors, warnings or crashes on OS X 10.10b6 and Xcode 6.0b6. In theory if you set the target version to 10.9 it should work there (but it just crashed on beta 3, haven't tried after that). If you set the SDK to 10.9 too you'll get many compiler errors, so don't do that.
 
 There are copious comments that, hopefully, explain some of the design decisions and workarounds where necessary. I'm trying out various comment styles and placements; along with the new whitespace conventions, this will hopefully converge to a new and consistent coding style for my Swift source code.
 
@@ -20,11 +20,12 @@ The Xcode project itself is largely unchanged from the default setup and options
 - Some build options have been set, most importantly "treat warnings as errors", and "-D DEBUG" in "Other Swift Flags".
 
 Known issues:
-- Crashed on me once when an app quit automatically - haven't been able to reproduce this yet.
 - The BenchmarkParallel() functions take way too long; I'm still testing the benchmarks.
 - Must adopt reStructuredText conventions for params and return values.
 
 Recent changes:
+- Small fixes for beta 6.
+- Fixed a rare crash when the last app in the table quit.
 - Updated for beta 5 - type changes, comparing to nil, etc. Simpler code, too.
 - Still trying to find the correct cast to SecCertificate.
 - Futures now use a custom queue to avoid the 64-thread limit on the main queues.

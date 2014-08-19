@@ -60,20 +60,23 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 	///	This NSTableViewDelegate method gets a NSTableCellView from the xib and
 	///	populates it with the process's icon or text.
 	private func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
-		let identifier = tableColumn.identifier!
-		let info = processes[row]
-		
-		//	Note that in the xib "1" and "2" are identifiers for both NSTableColumns and NSTableCellViews.
-		let view = tableView.makeViewWithIdentifier(identifier, owner: self) as NSTableCellView
-		switch identifier {
-		case "1":
-			view.imageView.image = info.icon	// blocks until the icon is ready
-		case "2":
-			view.textField.attributedStringValue = info.text	// blocks until the text is ready
-		default:
-			break
+		if row < processes.count {	// prevents a rare crash when the last app in the table quits
+			let info = processes[row]
+			let identifier = tableColumn.identifier!
+			
+			//	Note that in the xib "1" and "2" are identifiers for both NSTableColumns and NSTableCellViews.
+			let view = tableView.makeViewWithIdentifier(identifier, owner: self) as NSTableCellView
+			switch identifier {
+			case "1":
+				view.imageView.image = info.icon	// blocks until the icon is ready
+			case "2":
+				view.textField.attributedStringValue = info.text	// blocks until the text is ready
+			default:
+				break
+			}
+			return view
 		}
-		return view
+		return nil
 	}
 	
 	///	This NSTableViewDelegate method just prevents any row from being selected.
@@ -85,7 +88,7 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 //MARK: observers
 
 ///	This KVO observer is called whenever the list of running applications changes.
-	private override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [NSObject : AnyObject]!, context: UnsafeMutablePointer<()>) {
+	private override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [NSObject : AnyObject]!, context: UnsafeMutablePointer<Void>) {
 		var apps: NSArray? = nil
 
 		//	Need the change kind as a number, then as the proper enum type; might there be an easier way?
@@ -116,7 +119,7 @@ private class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSourc
 		//	This is one of several prints of timing information that works only on Debug builds.
 		//	Note that startup is defined/initialized inside main.swift!
 		PrintLN("willFinish; \(startup.age) after startup")
-		
+
 		let workspace = NSWorkspace.sharedWorkspace()
 
 		//	This adds the app delegate as observer of NSWorkspace's list of running applications.
