@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6185.7" systemVersion="14A283o" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6246" systemVersion="14A361c" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment defaultVersion="101000" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6185.7"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6246"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication"/>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application">
             <connections>
-                <outlet property="delegate" destination="EdN-fa-4Mx" id="n5X-Rp-VqE"/>
+                <outlet property="delegate" destination="lUd-mO-lIG" id="Pye-ln-tnu"/>
             </connections>
         </customObject>
-        <customObject id="EdN-fa-4Mx" customClass="AppDelegate" customModule="SwiftChecker" customModuleProvider="target">
+        <customObject id="lUd-mO-lIG" customClass="AppDelegate" customModule="SwiftChecker" customModuleProvider="target">
             <connections>
-                <outlet property="theTable" destination="DBG-P0-kda" id="mQR-kE-J5x"/>
-                <outlet property="theWindow" destination="F0z-JX-Cv5" id="Tmt-Ph-FuZ"/>
+                <outlet property="theTable" destination="DBG-P0-kda" id="ZWK-yN-s9V"/>
+                <outlet property="theWindow" destination="F0z-JX-Cv5" id="Cjk-39-6Gk"/>
             </connections>
         </customObject>
-        <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
                 <menuItem title="SwiftChecker" id="1Xt-HY-uBw">
@@ -460,8 +458,8 @@
                                         </tableColumn>
                                     </tableColumns>
                                     <connections>
-                                        <outlet property="dataSource" destination="EdN-fa-4Mx" id="A1E-0m-V8k"/>
-                                        <outlet property="delegate" destination="EdN-fa-4Mx" id="O4n-ky-xjq"/>
+                                        <outlet property="dataSource" destination="lUd-mO-lIG" id="ae8-hu-aat"/>
+                                        <outlet property="delegate" destination="lUd-mO-lIG" id="wHa-5u-yak"/>
                                     </connections>
                                 </tableView>
                             </subviews>

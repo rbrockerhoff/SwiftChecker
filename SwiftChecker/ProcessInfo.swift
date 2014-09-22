@@ -38,7 +38,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 		//	The icon may be read from disk, so making this a Future may save time. Still, the usual
 		//	time to resolve is under 1 ms in my benchmarks.
 		_icon = FutureDebug("\tIcon for \(name)") {
-			var image: NSImage = app.icon
+			var image = app.icon
 			image.size = NSSize(width: 64, height: 64)		// hardcoded to match the table column size
 			return image
 		}
@@ -233,13 +233,10 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 	parameter certificate.
  */
 private func GetCertSummary(cert: CFTypeRef) -> String? {
-	// I need to convert the CFTypeRef to a SecCertificate:
-	//	let scr = unsafeBitCast(cert, SecCertificate.self)
-	// but this is the currently safest recommended way:
-	let opaque = Unmanaged.passRetained(cert).toOpaque()
-	let scr: SecCertificate = Unmanaged.fromOpaque(opaque).takeRetainedValue()
-
-	// the value returned is cast to NSString? because you can't go from CFString to String directly.
-	return SecCertificateCopySubjectSummary(scr).takeRetainedValue() as NSString?
+	// From Xcode 6.1b2 on we now can cast directly from CFTypeRef to SecCertificate,
+	// and from CFString to String, but we still must return a managed object.
+	return SecCertificateCopySubjectSummary(cert as SecCertificate).takeRetainedValue()
 }
+
+
 

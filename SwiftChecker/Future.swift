@@ -148,12 +148,14 @@ public class FutureDebug <T> : Future <T> {
 	public init(_ str: String?, _ work: () -> T) {
 		_time = TimeStamp(str)
 		super.init(work)
+		_lock.name = str;
 	}
 	
 	///	This initializer creates and starts a Future using the last argument expression.
 	public init(_ str: String?, _ work: @autoclosure ()-> T) {
 		_time = TimeStamp(str)
 		super.init(work)
+		_lock.name = str;
 	}
 	
 //	--------------------------------------------------------------------------------
