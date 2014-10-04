@@ -29,8 +29,8 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 	public init(_ app: NSRunningApplication) {
 		
 		//	Fetch some values I'll need later on
-		let name = app.localizedName
-		let url = app.bundleURL
+		let name = app.localizedName!
+		let url = app.bundleURL!
 		let fpath = url.path!.stringByDeletingLastPathComponent
 		
 		bundleName = name
@@ -38,7 +38,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 		//	The icon may be read from disk, so making this a Future may save time. Still, the usual
 		//	time to resolve is under 1 ms in my benchmarks.
 		_icon = FutureDebug("\tIcon for \(name)") {
-			var image = app.icon
+			var image = app.icon!
 			image.size = NSSize(width: 64, height: 64)		// hardcoded to match the table column size
 			return image
 		}
@@ -83,8 +83,9 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 				
 				result += "signed "
 
-				//	The certificates array may be empty or missing entirely.
-				let certificates = signature["certificates"] as? Array<CFTypeRef>
+				//	The certificates array may be empty or missing entirely. Finally it's possible to cast
+				//	directly to Array<SecCertificate> instead of going over CFTypeRef.
+				let certificates = signature["certificates"] as? Array<SecCertificate>
 
 				//	Using optional chaining here checks for both empty or missing.
 				if  certificates?.count > 0 {
@@ -232,10 +233,10 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 	This function returns an Optional String containing the summary for the
 	parameter certificate.
  */
-private func GetCertSummary(cert: CFTypeRef) -> String? {
-	// From Xcode 6.1b2 on we now can cast directly from CFTypeRef to SecCertificate,
-	// and from CFString to String, but we still must return a managed object.
-	return SecCertificateCopySubjectSummary(cert as SecCertificate).takeRetainedValue()
+private func GetCertSummary(cert: SecCertificate) -> String? {
+	// We now can cast directly from CFString to String,
+	// but we still must return a managed object.
+	return SecCertificateCopySubjectSummary(cert).takeRetainedValue()
 }
 
 

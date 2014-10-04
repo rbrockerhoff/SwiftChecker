@@ -70,9 +70,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource
 			let view = tableView.makeViewWithIdentifier(identifier, owner: self) as NSTableCellView
 			switch identifier {
 			case "1":
-				view.imageView.image = info.icon	// blocks until the icon is ready
+				view.imageView!.image = info.icon	// blocks until the icon is ready
 			case "2":
-				view.textField.attributedStringValue = info.text	// blocks until the text is ready
+				view.textField!.attributedStringValue = info.text	// blocks until the text is ready
 			default:
 				break
 			}
@@ -90,11 +90,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource
 //MARK: observers
 
 ///	This KVO observer is called whenever the list of running applications changes.
-	public override func observeValueForKeyPath(keyPath: String!, ofObject object: AnyObject!, change: [NSObject : AnyObject]!, context: UnsafeMutablePointer<Void>) {
+	public override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
 		var apps: NSArray? = nil
 
-		//	This uses the rawValue: initializer which is new to Xcode 6.1b2
-		if let kind: NSKeyValueChange = NSKeyValueChange(rawValue: change[NSKeyValueChangeKindKey] as NSNumber) {
+		//	This uses the rawValue: initializer which is new since Xcode 6.1b2; casting to NSNumber is no longer needed.
+		if let kind: NSKeyValueChange = NSKeyValueChange(rawValue: change[NSKeyValueChangeKindKey] as UInt) {
 			switch kind {
 			case .Insertion:
 				//	Get the inserted apps (usually only one, but you never know
@@ -167,7 +167,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource
 			procdict.merge(apps) { (app) in
 				let remove = app.terminated		// insert or remove?
 				let msg = remove ? "Removed " : "Inserted "
-				PrintLN(msg + app.localizedName)
+				PrintLN(msg + app.localizedName!)
 				return (app, remove ? nil : ProcessInfo(app))
 			}
 			
@@ -207,7 +207,7 @@ private var KVOContext: Int = 0
 	a (key,nil) tuple to remove an item. See AppDelegate._update() above for an example.
 */
 
-public extension Dictionary {
+extension Dictionary {
 	
 	///	Merges a sequence of (key,value) tuples into a Dictionary.
 	mutating func merge <S: SequenceType where S.Generator.Element == Element> (seq: S) {
