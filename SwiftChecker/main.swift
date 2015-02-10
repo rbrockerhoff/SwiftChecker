@@ -12,5 +12,5 @@ import Cocoa
 let startup = TimeStamp()
 PrintLN("Started at \(startup)")
 
-NSApplicationMain(C_ARGC, C_ARGV)
+NSApplicationMain(Process.argc, Process.unsafeArgv)
 

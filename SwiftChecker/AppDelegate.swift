@@ -55,34 +55,35 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource
 //MARK: NSTableViewDataSource and NSTableViewDelegate methods
 
 	///	This NSTableViewDataSource method returns the number of processes: one per row.
-	public func numberOfRowsInTableView(tableView: NSTableView!) -> Int {
+	public func numberOfRowsInTableView(tableView: NSTableView) -> Int {
 		return processes.count
 	}
 	
 	///	This NSTableViewDelegate method gets a NSTableCellView from the xib and
 	///	populates it with the process's icon or text.
-	public func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
+	public func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
 		if row < processes.count {	// prevents a rare crash when the last app in the table quits
 			let info = processes[row]
-			let identifier = tableColumn.identifier!
+			if let identifier = tableColumn?.identifier {
 			
-			//	Note that in the xib "1" and "2" are identifiers for both NSTableColumns and NSTableCellViews.
-			let view = tableView.makeViewWithIdentifier(identifier, owner: self) as NSTableCellView
-			switch identifier {
-			case "1":
-				view.imageView!.image = info.icon	// blocks until the icon is ready
-			case "2":
-				view.textField!.attributedStringValue = info.text	// blocks until the text is ready
-			default:
-				break
+				//	Note that in the xib "1" and "2" are identifiers for both NSTableColumns and NSTableCellViews.
+				let view = tableView.makeViewWithIdentifier(identifier, owner: self) as! NSTableCellView
+				switch identifier {
+				case "1":
+					view.imageView!.image = info.icon	// blocks until the icon is ready
+				case "2":
+					view.textField!.attributedStringValue = info.text	// blocks until the text is ready
+				default:
+					break
+				}
+				return view
 			}
-			return view
 		}
 		return nil
 	}
 	
 	///	This NSTableViewDelegate method just prevents any row from being selected.
-	public func tableView(tableView: NSTableView!, shouldSelectRow row: Int) -> Bool {
+	public func tableView(tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
 		return false
 	}
 	
@@ -94,7 +95,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource
 		var apps: NSArray? = nil
 
 		//	This uses the rawValue: initializer which is new since Xcode 6.1b2; casting to NSNumber is no longer needed.
-		if let kind: NSKeyValueChange = NSKeyValueChange(rawValue: change[NSKeyValueChangeKindKey] as UInt) {
+		if let kind: NSKeyValueChange = NSKeyValueChange(rawValue: change[NSKeyValueChangeKindKey] as! UInt) {
 			switch kind {
 			case .Insertion:
 				//	Get the inserted apps (usually only one, but you never know
@@ -116,7 +117,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource
 
 	///	This NSApplicationDelegate method is called as soon as the app's icon begins
 	///	bouncing in the Dock.
-	public func applicationWillFinishLaunching(aNotification: NSNotification!) {
+	public func applicationWillFinishLaunching(aNotification: NSNotification) {
 		
 		//	This is one of several prints of timing information that works only on Debug builds.
 		//	Note that startup is defined/initialized inside main.swift!
@@ -135,18 +136,18 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource
 	/**	This NSApplicationDelegate method is called when all is ready and the app's icon
 		stops bouncing in the Dock.
 	 */
-	public func applicationDidFinishLaunching(Notification: NSNotification!) {
+	public func applicationDidFinishLaunching(Notification: NSNotification) {
 		PrintLN("didFinish; \(startup.age) after startup")
 		//	Yep, it does nothing else. Early on I had some debugging code in here.
 	}
 	
 	///	This NSApplicationDelegate method quits the app when the window is closed.
-	public func applicationShouldTerminateAfterLastWindowClosed(theApplication: NSApplication!) -> Bool {
+	public func applicationShouldTerminateAfterLastWindowClosed(theApplication: NSApplication) -> Bool {
 		return true
 	}
 	
 	///	This NSApplicationDelegate method is called just before termination.
-	public func applicationWillTerminate(aNotification: NSNotification!) {
+	public func applicationWillTerminate(aNotification: NSNotification) {
 		PrintLN("willTerminate; \(startup.age) after startup")
 		
 		// remove the observer we added in applicationWillFinishLaunching

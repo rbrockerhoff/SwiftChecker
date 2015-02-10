@@ -173,7 +173,7 @@ public func - (left: TimeStamp, right: TimeStamp) -> TimeStamp! {
 	if !left.absolute && right.absolute {
 		return nil		// wrong combination, boom!
 	}
-	return TimeStamp(left.absolute ^ right.absolute, left.time - right.time, nil)
+	return TimeStamp(left.absolute != right.absolute, left.time - right.time, nil)
 }
 
 /**	This operator produces a new TimeStamp containing the sum of the two argument
@@ -183,7 +183,7 @@ public func + (left: TimeStamp, right: TimeStamp) -> TimeStamp! {
 	if left.absolute && right.absolute {
 		return nil		// wrong combination, boom!
 	}
-	return TimeStamp(left.absolute ^ right.absolute, left.time + right.time, nil)
+	return TimeStamp(left.absolute != right.absolute, left.time + right.time, nil)
 }
 
 /**	This operator produces a new TimeStamp, subtracting the right value (in seconds)

@@ -70,14 +70,13 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 			//	GetCodeSignatureForURL() may return nil, an empty dictionary, or a dictionary with parts missing.
 			if let signature = GetCodeSignatureForURL(url) {
 				
-				//	The entitlements dictionary may also be missing.
-				if let entitlements = signature["entitlements-dict"] as? NSDictionary {
-					if let sandbox = entitlements["com.apple.security.app-sandbox"] as? NSNumber {
+				//	The entitlements dictionary may also be missing. Notice the new if let syntax here.
+				if let entitlements = signature["entitlements-dict"] as? NSDictionary,
+					sandbox = entitlements["com.apple.security.app-sandbox"] as? NSNumber {
 						
-						//	Even if the sandbox entitlement is present it may be 0 or NO
-						if  sandbox.boolValue {
-							result += ("sandboxed, ", styleBLUE)	// blue text to stand out
-						}
+					//	Even if the sandbox entitlement is present it may be 0 or NO
+					if  sandbox.boolValue {
+						result += ("sandboxed, ", styleBLUE)	// blue text to stand out
 					}
 				}
 				
@@ -88,7 +87,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 				let certificates = signature["certificates"] as? Array<SecCertificate>
 
 				//	Using optional chaining here checks for both empty or missing.
-				if  certificates?.count > 0 {
+				if certificates?.count > 0 {
 
 					//	This gets the summaries for all certificates.
 					let summaries = certificates!.map { (cert) -> String in
@@ -179,23 +178,22 @@ public func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equ
 
 /// The right-hand String is appended to the left-hand NSMutableString.
  public func += (inout left: NSMutableAttributedString, right: String) {
-	left.appendAttributedString(NSAttributedString(string: right, attributes: NSDictionary()))
+	left.appendAttributedString(NSAttributedString(string: right, attributes: [ : ]))
 }
 
 /// The right-hand tuple contains a String with an attribute NSDictionary to append
 /// to the left-hand NSMutableString.
 
-public func += (inout left: NSMutableAttributedString, right: (str: String, att: NSDictionary)) {
+public func += (inout left: NSMutableAttributedString, right: (str: String, att: [NSObject : AnyObject])) {
 	left.appendAttributedString(NSAttributedString(string: right.str, attributes: right.att))
 }
 
-//	Some preset style attributes for that last function. Note that these are Dictionaries of different
-//	types, so we have to cast them to NSDictionary. (beta 6 no longer does this automatically)
+//	Some preset style attributes for that last function.
 
-public let styleRED = [NSForegroundColorAttributeName : NSColor.redColor()] as NSDictionary
-public let styleBLUE = [NSForegroundColorAttributeName : NSColor.blueColor()] as NSDictionary
-public let styleBOLD12 = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)] as NSDictionary
-public let styleNORM12 = [NSFontAttributeName : NSFont.systemFontOfSize(12)] as NSDictionary
+public let styleRED: [NSObject : AnyObject] = [NSForegroundColorAttributeName : NSColor.redColor()]
+public let styleBLUE: [NSObject : AnyObject] = [NSForegroundColorAttributeName : NSColor.blueColor()]
+public let styleBOLD12: [NSObject : AnyObject] = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)]
+public let styleNORM12: [NSObject : AnyObject] = [NSFontAttributeName : NSFont.systemFontOfSize(12)]
 
 //	--------------------------------------------------------------------------------
 //MARK: functions that get data from the Security framework
@@ -236,7 +234,7 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 private func GetCertSummary(cert: SecCertificate) -> String? {
 	// We now can cast directly from CFString to String,
 	// but we still must return a managed object.
-	return SecCertificateCopySubjectSummary(cert).takeRetainedValue()
+	return SecCertificateCopySubjectSummary(cert).takeRetainedValue() as String
 }
 
 

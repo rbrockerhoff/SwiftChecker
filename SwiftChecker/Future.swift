@@ -25,9 +25,7 @@ import Foundation
 
 	Use it like this:
 		var aFuture: Future<someType> = Future { ...closure returning someType... }
-	or
-		var aFuture: Future<someType> = Future ( ...value of someType... )
-	where the closure or value are supposed to take some time (over 1 ms), therefore
+	where the closure is supposed to take some time (over 1 ms), therefore
 	worthwhile to be executed asynchronously. Type inference works, so the left-hand
 	side on the examples above could usually just be written as
 		var aFuture = Future...
@@ -48,11 +46,6 @@ public class Future <T> {
 	
 	///	This initializer creates and starts a Future using the argument closure.
 	public init(_ work: () -> T) {
-		_run(work)
-	}
-	
-	///	This initializer creates and starts a Future using the argument expression.
-	public init(_ work: @autoclosure ()-> T) {
 		_run(work)
 	}
 	
@@ -150,14 +143,7 @@ public class FutureDebug <T> : Future <T> {
 		super.init(work)
 		_lock.name = str;
 	}
-	
-	///	This initializer creates and starts a Future using the last argument expression.
-	public init(_ str: String?, _ work: @autoclosure ()-> T) {
-		_time = TimeStamp(str)
-		super.init(work)
-		_lock.name = str;
-	}
-	
+
 //	--------------------------------------------------------------------------------
 //MARK:	public properties
 	
@@ -220,7 +206,7 @@ public class FutureDebug <T> : Future <T> {
 	sanity when invoking them from asynchronous tasks.
 
 	They do nothing in non-Debug builds, so no need for #if DEBUG lines elsewhere - not even
-	the arguments are evaluated, due to the @auto_closure trick.
+	the arguments are evaluated, due to the @autoclosure trick.
 */
 
 #if DEBUG
@@ -229,18 +215,20 @@ private let _printq = {	// global serial dispatch queue for print functions
 	}()
 #endif
 
-public func PrintLN <T> (object: @autoclosure () -> T) {
+public func PrintLN <T> (@autoclosure object: () -> T) {
 #if DEBUG
+	let temp: T = object()
 	dispatch_sync(_printq) {
-		println(object())
+		println(temp)
 	}
 #endif
 }
 
-public func Print <T> (object: @autoclosure () -> T) {
+public func Print <T> (@autoclosure object: () -> T) {
 #if DEBUG
+	let temp: T = object()
 	dispatch_sync(_printq) {
-		print(object())
+		print(temp)
 	}
 #endif
 }

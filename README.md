@@ -11,7 +11,7 @@ Updating the table might potentially take some time if the system is very busy, 
 
 The Timing.swift file contains timing and benchmarking utilities which might come handy in other projects. The classes and functions in Future.swift can also be used elsewhere.
 
-The project should build and run with no errors, warnings or crashes on the latest versions of OS X 10.10 and Xcode 6.1GM. In theory if you set the target version to 10.9 it should work there (but I haven't tried). The target SDK must now be 10.10 for Swift apps.
+The project should build and run with no errors, warnings or crashes on the latest versions of OS X 10.10 and Xcode 6.3 beta. In theory if you set the target version to 10.9 it should work there (but I haven't tried). The target SDK must now be 10.10 for Swift apps.
 
 There are copious comments that, hopefully, explain some of the design decisions and workarounds where necessary. I'm trying out various comment styles and placements; along with the new whitespace conventions, this will hopefully converge to a new and consistent coding style for my Swift source code.
 
@@ -24,6 +24,7 @@ Known issues:
 - Must adopt reStructuredText conventions for params and return values.
 
 Recent changes:
+- Fixes for Xcode 6.3 beta - more restricted @autoclosure, Future(expression) deleted, more optionals changed
 - Fixes for Xcode 6.1GM - less casts needed, app delegate must be public, changes to optionals
 - Fixed a rare crash when the last app in the table quit.
 - Futures now use a custom queue to avoid the 64-thread limit on the main queues.
