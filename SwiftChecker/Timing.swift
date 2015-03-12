@@ -211,7 +211,7 @@ public typealias BenchClosure = () -> Any?
 	relative TimeStamp containing the average execution time for the closure.
 	This makes no sense if the repetition count is < 1.
 */
-public func BenchmarkSerial(comment: String?, times: UInt, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkSerial(comment: String?, times: Int, work: BenchClosure) -> TimeStamp! {
 	if (times < 1) {
 		return nil		// zero repetitions, boom!
 	}
@@ -220,7 +220,7 @@ public func BenchmarkSerial(comment: String?, times: UInt, work: BenchClosure) -
 }
 
 /// Same function with no label.
-public func BenchmarkSerial(times: UInt, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkSerial(times: Int, work: BenchClosure) -> TimeStamp! {
 	return BenchmarkSerial(nil, times, work)
 }
 
@@ -230,7 +230,7 @@ public func BenchmarkSerial(times: UInt, work: BenchClosure) -> TimeStamp! {
 	relative TimeStamp containing the average execution time for the closure.
 	This makes no sense if the repetition count is < 1.
 */
-public func BenchmarkParallel(comment: String?, times: UInt, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkParallel(comment: String?, times: Int, work: BenchClosure) -> TimeStamp! {
 	if (times < 1) {
 		return nil		// zero, boom!
 	}
@@ -239,7 +239,7 @@ public func BenchmarkParallel(comment: String?, times: UInt, work: BenchClosure)
 }
 
 /// Same function with no label.
-public func BenchmarkParallel(times: UInt, work: BenchClosure) -> TimeStamp! {
+public func BenchmarkParallel(times: Int, work: BenchClosure) -> TimeStamp! {
 	return BenchmarkParallel(nil, times, work)
 }
 
@@ -274,7 +274,7 @@ public func ReportTimingData() {
 //MARK:	private functions and values for benchmarking
 
 ///	This private function does the actual serial measurement.
-private func _BenchmarkSerial(times: UInt, work: BenchClosure) -> Int64 {
+private func _BenchmarkSerial(times: Int, work: BenchClosure) -> Int64 {
 	var total: Int64 = 0
 	for _ in 1...times {
 		let before = Int64(mach_absolute_time())
@@ -290,13 +290,13 @@ private let _benchq = {	// global concurrent dispatch queue for BenchmarkParalle
 	}()
 
 ///	the stride count multiplier
-private let _repeat: UInt = 10
+private let _repeat: Int = 10
 
 ///	This private function does the actual parallel measurement.
-private func _BenchmarkParallel(times: UInt, work: BenchClosure) -> Int64 {
+private func _BenchmarkParallel(times: Int, work: BenchClosure) -> Int64 {
 	let lock = NSCondition()
 	var total: Int64 = 0
-	let nt = min(1,times/_repeat)
+	let nt = min(1, times/_repeat)
 	dispatch_apply(nt, _benchq) { (_) in
 		let before = Int64(mach_absolute_time())
 		for _ in 1..._repeat {

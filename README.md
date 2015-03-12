@@ -24,7 +24,8 @@ Known issues:
 - Must adopt reStructuredText conventions for params and return values.
 
 Recent changes:
-- Fixes for Xcode 6.3 beta - more restricted @autoclosure, Future(expression) deleted, more optionals changed
+- Fixes for Xcode 6.3 beta 3 - UInt is gone almost everywhere
+- Fixes for Xcode 6.3 beta 2 - more restricted @autoclosure, Future(expression) deleted, more optionals changed
 - Fixes for Xcode 6.1GM - less casts needed, app delegate must be public, changes to optionals
 - Fixed a rare crash when the last app in the table quit.
 - Futures now use a custom queue to avoid the 64-thread limit on the main queues.
