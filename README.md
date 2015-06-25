@@ -11,7 +11,7 @@ Updating the table might potentially take some time if the system is very busy, 
 
 The Timing.swift file contains timing and benchmarking utilities which might come handy in other projects. The classes and functions in Future.swift can also be used elsewhere.
 
-The project should build and run with no errors, warnings or crashes on the latest versions of OS X 10.10 and Xcode 6.3 beta. In theory if you set the target version to 10.9 it should work there (but I haven't tried). The target SDK must now be 10.10 for Swift apps.
+The project should build and run with no errors, warnings or crashes on the latest versions of OS X 10.10 and Xcode 7 beta 2. In theory if you set the target version to 10.9 it should work there (but I haven't tried). The target SDK must now be 10.10 for Swift apps. Not tested (as yet) on 10.11.
 
 There are copious comments that, hopefully, explain some of the design decisions and workarounds where necessary. I'm trying out various comment styles and placements; along with the new whitespace conventions, this will hopefully converge to a new and consistent coding style for my Swift source code.
 
@@ -21,9 +21,10 @@ The Xcode project itself is largely unchanged from the default setup and options
 
 Known issues:
 - The BenchmarkParallel() functions take way too long; I'm still testing the benchmarks.
-- Must adopt reStructuredText conventions for params and return values.
+- The Future and FutureThrows classes should have similar APIs.
 
 Recent changes:
+- Fixes for Xcode 7 beta 2 - autoconverted to Swift 2, throwing futures, guards, new syntax elsewhere, QuickHelp comments
 - Fixes for Xcode 6.3 beta 3 - UInt is gone almost everywhere
 - Fixes for Xcode 6.3 beta 2 - more restricted @autoclosure, Future(expression) deleted, more optionals changed
 - Fixes for Xcode 6.1GM - less casts needed, app delegate must be public, changes to optionals

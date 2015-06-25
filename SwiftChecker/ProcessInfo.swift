@@ -3,7 +3,7 @@
 //  SwiftChecker
 //
 //  Created by Rainer Brockerhoff on 17/7/14.
-//  Copyright (c) 2014 Rainer Brockerhoff. All rights reserved.
+//  Copyright (c) 2014-2015 Rainer Brockerhoff. All rights reserved.
 //
 
 import Cocoa
@@ -11,21 +11,23 @@ import Cocoa
 //MARK: public class ProcessInfo
 //	================================================================================
 /**
-	This class represents a running process and corresponds to one row in the NSTableView.
-	It obtains and caches data displayed by the table.
+# ProcessInfo
+This class represents a running process and corresponds to one row in the `NSTableView`.
+
+It obtains and caches data displayed by the table.
 */
 public class ProcessInfo: Comparable {		// Comparable implies Equatable
 	
 //	--------------------------------------------------------------------------------
 //MARK:	initializers
 	
-	/**
-		This single & only initializer does all the heavy lifting by getting data
-		from the NSRunningApplication parameter.
-	
-		It uses Futures to get the bundle icon and to setup the displayed text, which will
-		also contain the certificate summaries from the code signature.
-	*/
+/**
+	This single & only initializer does all the heavy lifting by getting data
+	from the `NSRunningApplication` parameter.
+
+	It uses Futures to get the bundle icon and to setup the displayed text, which will
+	also contain the certificate summaries from the code signature.
+*/
 	public init(_ app: NSRunningApplication) {
 		
 		//	Fetch some values I'll need later on
@@ -38,7 +40,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 		//	The icon may be read from disk, so making this a Future may save time. Still, the usual
 		//	time to resolve is under 1 ms in my benchmarks.
 		_icon = FutureDebug("\tIcon for \(name)") {
-			var image = app.icon!
+			let image = app.icon!
 			image.size = NSSize(width: 64, height: 64)		// hardcoded to match the table column size
 			return image
 		}
@@ -95,7 +97,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 					}
 
 					//	Concatenating with commas is easy now
-					result += "by " + join(", ",summaries)
+					result += "by " + ", ".join(summaries)
 
 				} else {	// signed but no certificates
 					result += "without certificates"
@@ -112,23 +114,23 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 //	--------------------------------------------------------------------------------
 //MARK:	public properties
 
-	///	This read-only property contains the localized bundle name (without extension).
+/**
+This read-only property contains the localized bundle name (without extension).
+*/
 	public let bundleName: String
 	
-	/**
-		This is a computed property (so it must be var). It will get the future
-		value from the _icon Future, meaning it will block while the icon
-		is obtained.
-	 */
+/**
+This is a computed property (so it must be var). It will get the future
+value from the `_icon` Future, meaning it will block while the icon is obtained.
+ */
 	var icon: NSImage {
 		return _icon.value
 	}
 	
-	/**
-		This is a computed property (so it must be var). It will get the future
-		value from the _text Future, meaning it will block while the text
-		is obtained.
-	 */
+/**
+This is a computed property (so it must be var). It will get the future
+value from the `_text` Future, meaning it will block while the text is obtained.
+ */
 	var text: NSAttributedString {
 		return _text.value
 	}
@@ -136,10 +138,14 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 //	--------------------------------------------------------------------------------
 //MARK:	private properties
 	
-///	This is the backing property for the (computed) icon property.
+/**
+This is the backing property for the (computed) icon property.
+*/
 	private let _icon: Future <NSImage>
 	
-///	This is the backing property for the (computed) text property.
+/**
+This is the backing property for the (computed) text property.
+*/
 	private let _text: Future <NSAttributedString>
 
 }	// end of ProcessInfo
@@ -147,14 +153,15 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 //	================================================================================
 /**
 	The following operators, globals and functions are here because they're used or
-	required by the ProcessInfo class.
+	required by the `ProcessInfo` class.
 */
 
 //	--------------------------------------------------------------------------------
-//MARK:	public operators for comparing ProcessInfos
-/*	must define < and == to conform to the Comparable and Equatable protocols.
+//MARK:	public operators for comparing `ProcessInfo`s
+/**
+must define < and == to conform to the `Comparable` and `Equatable` protocols.
 
-	Here I use the bundleName in Finder order, convenient for sorting.
+Here I use the `bundleName` in Finder order, convenient for sorting.
 */
 public func < (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Comparable
 	return lhs.bundleName.localizedStandardCompare(rhs.bundleName) == NSComparisonResult.OrderedAscending
@@ -184,23 +191,24 @@ public func == (lhs: ProcessInfo, rhs: ProcessInfo) -> Bool {	// required by Equ
 /// The right-hand tuple contains a String with an attribute NSDictionary to append
 /// to the left-hand NSMutableString.
 
-public func += (inout left: NSMutableAttributedString, right: (str: String, att: [NSObject : AnyObject])) {
+public func += (inout left: NSMutableAttributedString, right: (str: String, att: [String : AnyObject])) {
 	left.appendAttributedString(NSAttributedString(string: right.str, attributes: right.att))
 }
 
 //	Some preset style attributes for that last function.
 
-public let styleRED: [NSObject : AnyObject] = [NSForegroundColorAttributeName : NSColor.redColor()]
-public let styleBLUE: [NSObject : AnyObject] = [NSForegroundColorAttributeName : NSColor.blueColor()]
-public let styleBOLD12: [NSObject : AnyObject] = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)]
-public let styleNORM12: [NSObject : AnyObject] = [NSFontAttributeName : NSFont.systemFontOfSize(12)]
+public let styleRED: [String : AnyObject] = [NSForegroundColorAttributeName : NSColor.redColor()]
+public let styleBLUE: [String : AnyObject] = [NSForegroundColorAttributeName : NSColor.blueColor()]
+public let styleBOLD12: [String : AnyObject] = [NSFontAttributeName : NSFont.boldSystemFontOfSize(12)]
+public let styleNORM12: [String : AnyObject] = [NSFontAttributeName : NSFont.systemFontOfSize(12)]
+
 
 //	--------------------------------------------------------------------------------
 //MARK: functions that get data from the Security framework
-
+ 
 /**
-	This function returns an Optional NSDictionary containing code signature data for the
-	argument URL.
+This function returns an Optional NSDictionary containing code signature data for the
+argument file URL.
 */
 private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 	if let url = url {	// immediate unwrap if not nil, reuse the name
@@ -228,9 +236,8 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 }
 
 /**
-	This function returns an Optional String containing the summary for the
-	parameter certificate.
- */
+This function returns an Optional String containing the summary for the parameter certificate.
+*/
 private func GetCertSummary(cert: SecCertificate) -> String? {
 	// We now can cast directly from CFString to String,
 	// but we still must return a managed object.

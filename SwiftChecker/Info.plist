@@ -17,13 +17,13 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1</string>
+	<string>1.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2014 Rainer Brockerhoff</string>
+	<string>Copyright © 2014, 2015 Rainer Brockerhoff</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSMainNibFile</key>
