@@ -72,7 +72,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 			//	GetCodeSignatureForURL() may return nil, an empty dictionary, or a dictionary with parts missing.
 			if let signature = GetCodeSignatureForURL(url) {
 				
-				//	The entitlements dictionary may also be missing. Notice the new if let syntax here.
+				//	The entitlements dictionary may also be missing.
 				if let entitlements = signature["entitlements-dict"] as? NSDictionary,
 					sandbox = entitlements["com.apple.security.app-sandbox"] as? NSNumber {
 						
@@ -93,7 +93,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 
 					//	This gets the summaries for all certificates.
 					let summaries = certificates!.map { (cert) -> String in
-						return GetCertSummary(cert) ?? "<?>"	// GetCertSummary() may return nil
+						return SecCertificateCopySubjectSummary(cert) as String
 					}
 
 					//	Concatenating with commas is easy now
@@ -209,39 +209,33 @@ public let styleNORM12: [String : AnyObject] = [NSFontAttributeName : NSFont.sys
 /**
 This function returns an Optional NSDictionary containing code signature data for the
 argument file URL.
+
+Instead of the `Unmanaged` idiom used in previous versions, the (new in 7.0b4) annotations
+for the Security framework use the `UnsafeMutablePointer` idiom.
 */
 private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
+	var result: NSDictionary? = nil
 	if let url = url {	// immediate unwrap if not nil, reuse the name
-		
-		//	SecStaticCodeCreateWithPath does an indirect return of SecStaticCode, so I need the
-		//	Unmanaged<> container.
-		var code: Unmanaged<SecStaticCode>? = nil
-		var err = SecStaticCodeCreateWithPath(url, SecCSFlags(kSecCSDefaultFlags), &code)
-		
-		//	If the call succeeds, I immediately convert it to a managed object
-		if err == OSStatus(noErr) && code != nil {
-			let code = code!.takeRetainedValue()
 
-			//	Same as above, the call will return an Unmanaged object...
-			var dict: Unmanaged<CFDictionary>? = nil
-			err = SecCodeCopySigningInformation(code, SecCSFlags(kSecCSSigningInformation), &dict)
-			
-			//	and if it succeeds, we return a managed object.
-			if err == OSStatus(noErr) && dict != nil {
-				return dict!.takeRetainedValue()
+		var code: SecStaticCode? = nil
+
+		// Note the nested withUnsafeMutablePointer() calls here for the Security APIs.
+		result = withUnsafeMutablePointer(&code) { codePtr in
+			let err: OSStatus = SecStaticCodeCreateWithPath(url, SecCSFlags.DefaultFlags, codePtr)
+			if err == OSStatus(noErr) && code != nil {
+
+				var dict: CFDictionary? = nil
+
+				let err: OSStatus = withUnsafeMutablePointer(&dict) { dictPtr in
+					// we can force unwrap `code` here after the test for non-nil
+					return SecCodeCopySigningInformation(code!, SecCSFlags(rawValue: kSecCSSigningInformation), dictPtr)
+				}
+				return err == OSStatus(noErr) ? dict as NSDictionary? : nil
 			}
+			return nil
 		}
 	}
-	return nil	// if anything untoward happens, we return nil.
-}
-
-/**
-This function returns an Optional String containing the summary for the parameter certificate.
-*/
-private func GetCertSummary(cert: SecCertificate) -> String? {
-	// We now can cast directly from CFString to String,
-	// but we still must return a managed object.
-	return SecCertificateCopySubjectSummary(cert).takeRetainedValue() as String
+	return result	// if anything untoward happens, this will be nil.
 }
 
 

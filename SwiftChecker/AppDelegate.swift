@@ -92,7 +92,7 @@ called several times before the array is filled.
 //MARK: observers
 
 ///	This KVO observer is called whenever the list of running applications changes.
-	public override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [NSObject : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+	public override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
 		var apps: NSArray? = nil
 		
 		//	This uses the new guard statement to return early if there's no change dictionary.
