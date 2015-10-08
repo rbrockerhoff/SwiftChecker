@@ -30,10 +30,10 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 */
 	public init(_ app: NSRunningApplication) {
 		
-		//	Fetch some values I'll need later on
+		//	Fetch some values I'll need later on. 
 		let name = app.localizedName!
 		let url = app.bundleURL!
-		let fpath = url.path!.stringByDeletingLastPathComponent
+		let fpath = url.URLByDeletingLastPathComponent!.path!
 		
 		bundleName = name
 		
@@ -97,7 +97,7 @@ public class ProcessInfo: Comparable {		// Comparable implies Equatable
 					}
 
 					//	Concatenating with commas is easy now
-					result += "by " + ", ".join(summaries)
+					result += "by " + summaries.joinWithSeparator(", ")
 
 				} else {	// signed but no certificates
 					result += "without certificates"

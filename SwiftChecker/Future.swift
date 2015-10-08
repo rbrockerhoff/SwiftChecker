@@ -443,50 +443,35 @@ As a convenience, it will print it out if a label has been assigned.
 }	// end of FutureThrowsDebug
 
 //	--------------------------------------------------------------------------------
-//MARK: convenience debugging functions
+//MARK: convenience debugging function
 /**
-	The following convenience functions are for debugging only. For these to work, be sure to
+	The following convenience function is for debugging only. For this to work, be sure to
 	set "-D DEBUG" in "Other Swift Flags" for the Debug build in the Xcode project!
 
-	They basically wrap and serialize the `print()` functions to preserve
+	This basically wraps and serializes the `print()` function to preserve
 	sanity when invoking them from asynchronous tasks.
 
-	They do nothing in non-Debug builds, so no need for #if DEBUG lines elsewhere - not even
-	the arguments are evaluated, due to the `@autoclosure` trick.
+	It does nothing in non-Debug builds, so no need for #if DEBUG lines elsewhere.
 */
 
-#if DEBUG
-private let _printq = {	// global serial dispatch queue for print functions
-		dispatch_queue_create("printq", DISPATCH_QUEUE_SERIAL)
-	}()
-#endif
+/*	Starting with Xcode 7.0/Swift 2.0 there is but a single print function that accepts an
+	argument list. Currently it seems to be impossible to pass this list down to other functions,
+	so we have to duplicate what the new print() function does internally.
 
-public func Print <T> (@autoclosure object: () -> T, appendNewline: Bool) {
+	Specifically, String() needs to be called on every item in the list before concatenating.
+	Before realizing this, I had some very entertaining crashes _after_ joinWithSeparator()
+	silently corrupted memory.
+
+	Older versions also used a serial dispatch_queue for serializing, using the main thread
+	avoids that. The trade-off is that whatever's print()ed just before a crash may be lost.
+*/
+public func Print(items: Any..., separator: String = " ", terminator: String = "\n") {
 #if DEBUG
-	let temp: T = object()
-	dispatch_sync(_printq) {
-		print(temp, appendNewline: appendNewline)
+	PerformOnMain() {
+		print(items.map{String($0)}.joinWithSeparator(separator), terminator:terminator)
 	}
 #endif
 }
-
-public func Print <T> (@autoclosure object: () -> T) {
-#if DEBUG
-	let temp: T = object()
-	dispatch_sync(_printq) {
-		print(temp)
-	}
-#endif
-}
-
-public func Print() {
-#if DEBUG
-	dispatch_sync(_printq) {
-		print()
-	}
-#endif
-}
-
 
 //	--------------------------------------------------------------------------------
 //MARK: convenience asynchronous functions
