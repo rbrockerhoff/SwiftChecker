@@ -11,7 +11,7 @@ Updating the table might potentially take some time if the system is very busy, 
 
 The Timing.swift file contains timing and benchmarking utilities which might come handy in other projects. The classes and functions in Future.swift can also be used elsewhere.
 
-The project should build and run with no errors, warnings or crashes on the latest versions of OS X 10.11 and Xcode 7.1 beta 3. In theory if you set the target version to 10.9 it should work there (but I haven't tried); note that current Xcode 7.x ships only with the 10.11 SDK.
+The project should build and run with no errors, warnings or crashes on the latest versions of OS X 10.11 and Xcode 7.2. In theory if you set the target version to 10.9 it should work there (but I haven't tried); note that current Xcode 7.x ships only with the 10.11 SDK.
 
 There are copious comments that, hopefully, explain some of the design decisions and workarounds where necessary. I'm trying out various comment styles and placements; along with the new whitespace conventions, this will hopefully converge to a new and consistent coding style for my Swift source code.
 
@@ -24,6 +24,7 @@ Known issues:
 - The Future and FutureThrows classes should have similar APIs.
 
 Recent changes:
+- Fix for Xcode 7.2 - removed withUnsafeMutablePointer() calls which are no longer necessary in my case.
 - Fix for Xcode 7.1 beta 3 - standard library changes for print() and other functions. Serialize print() to main thread.
 - Fix for Xcode 7 beta 4 - substitute UnsafeMutablePointer for Unmanaged arguments to the Security framework
 - Fix for Xcode 7 beta 3 - the change dictionary parameter to observeValueForKeyPath is now more specific

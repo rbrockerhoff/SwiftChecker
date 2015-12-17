@@ -209,9 +209,6 @@ public let styleNORM12: [String : AnyObject] = [NSFontAttributeName : NSFont.sys
 /**
 This function returns an Optional NSDictionary containing code signature data for the
 argument file URL.
-
-Instead of the `Unmanaged` idiom used in previous versions, the (new in 7.0b4) annotations
-for the Security framework use the `UnsafeMutablePointer` idiom.
 */
 private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 	var result: NSDictionary? = nil
@@ -219,20 +216,13 @@ private func GetCodeSignatureForURL(url: NSURL?) -> NSDictionary? {
 
 		var code: SecStaticCode? = nil
 
-		// Note the nested withUnsafeMutablePointer() calls here for the Security APIs.
-		result = withUnsafeMutablePointer(&code) { codePtr in
-			let err: OSStatus = SecStaticCodeCreateWithPath(url, SecCSFlags.DefaultFlags, codePtr)
-			if err == OSStatus(noErr) && code != nil {
+		let err: OSStatus = SecStaticCodeCreateWithPath(url, SecCSFlags.DefaultFlags, &code)
+		if err == OSStatus(noErr) && code != nil {
 
-				var dict: CFDictionary? = nil
+			var dict: CFDictionary? = nil
 
-				let err: OSStatus = withUnsafeMutablePointer(&dict) { dictPtr in
-					// we can force unwrap `code` here after the test for non-nil
-					return SecCodeCopySigningInformation(code!, SecCSFlags(rawValue: kSecCSSigningInformation), dictPtr)
-				}
-				return err == OSStatus(noErr) ? dict as NSDictionary? : nil
-			}
-			return nil
+			let err = SecCodeCopySigningInformation(code!, SecCSFlags(rawValue: kSecCSSigningInformation), &dict)
+			result = err == OSStatus(noErr) ? dict as NSDictionary? : nil
 		}
 	}
 	return result	// if anything untoward happens, this will be nil.

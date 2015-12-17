@@ -6,6 +6,7 @@
 //  Copyright (c) 2014-2015 Rainer Brockerhoff. All rights reserved.
 
 import Foundation
+import Darwin
 
 /**
 Functions and some Future classes to do easy asynchronous stuff.
@@ -448,8 +449,9 @@ As a convenience, it will print it out if a label has been assigned.
 	The following convenience function is for debugging only. For this to work, be sure to
 	set "-D DEBUG" in "Other Swift Flags" for the Debug build in the Xcode project!
 
-	This basically wraps and serializes the `print()` function to preserve
-	sanity when invoking them from asynchronous tasks.
+	This used to wrap and serialize the `print()` function to preserve
+	sanity when invoking it from asynchronous tasks, but apparently that's no
+	longer necessary with Swift 2.0 and up.
 
 	It does nothing in non-Debug builds, so no need for #if DEBUG lines elsewhere.
 */
@@ -462,14 +464,10 @@ As a convenience, it will print it out if a label has been assigned.
 	Before realizing this, I had some very entertaining crashes _after_ joinWithSeparator()
 	silently corrupted memory.
 
-	Older versions also used a serial dispatch_queue for serializing, using the main thread
-	avoids that. The trade-off is that whatever's print()ed just before a crash may be lost.
 */
 public func Print(items: Any..., separator: String = " ", terminator: String = "\n") {
 #if DEBUG
-	PerformOnMain() {
-		print(items.map{String($0)}.joinWithSeparator(separator), terminator:terminator)
-	}
+	print(items.map{String($0)}.joinWithSeparator(separator), terminator:terminator)
 #endif
 }
 
@@ -483,9 +481,14 @@ basically an equivalent of `performSelectorOnMainThread:` but with no `object` a
 We might do `dispatch_async(dispatch_get_main_queue(), work)` here, but
 that may cut in front of other events waiting to be handled in the run loop.
 (Thanks to Kyle Sluder for the explanation.)
+
+`CFRunLoopPerformBlock()` enqueues the block but doesn't wake the runloop up,
+so we call `CFRunLoopWakeUp()` to make sure it will run as soon as possible.
 */
 public func PerformOnMain(work: () -> Void) {
-	CFRunLoopPerformBlock(NSRunLoop.mainRunLoop().getCFRunLoop(), kCFRunLoopCommonModes, work)
+	let loop = NSRunLoop.mainRunLoop().getCFRunLoop()
+	CFRunLoopPerformBlock(loop, kCFRunLoopCommonModes, work)
+	CFRunLoopWakeUp(loop)
 }
 
 /**
